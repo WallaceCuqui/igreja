@@ -1,0 +1,68 @@
+# Para trazer os dados do GitHub:
+
+git pull origin main
+
+
+# Para enviar as atualizações para o GitHub:
+
+git add .
+git commit -m "Atualizado dia 16/10/25 pc 2"
+git push origin main
+
+
+
+# Roda para atualizar os css e js:
+# No linux é no terminal do VS, no Windows é no terminal do Laragon
+#rodar: (para usar localhost:8000)
+
+npm run dev
+
+
+# No linux: 
+sudo chmod -R 777 storage bootstrap/cache
+
+php artisan serve
+
+# Para envio de emails, tem que rodar em um terminal separado
+
+php artisan queue:work
+
+
+
+
+==== OBSERVAÇÕES PARA MAQUiNA 1 ======
+
+# 
+
+
+
+
+=== SEMPRE QUE CRIAR UM BANCO NOVO ======
+
+#Isso vai criar os registros na tabela permissions (com id, name e guard_name).
+
+php artisan db:seed --class=PermissionsSeeder
+
+# Se for necessário descomentar a rota no web.php para autorizar o admin
+
+==== COMANDO PARA CRIAR OBSERVE ====
+
+# Exemplo (trocar o nome Cupom pelo nome correto)
+php artisan make:observer CupomObserver --model=Cupom
+
+# Depois No App\Providers\AppServiceProvider.php dentro do método boot()
+
+use App\Observers\CupomObserver;
+use App\Models\CupomDesconto; <-- nome correto no Model
+Cupom::observe(CupomDesconto::class);
+
+
+==== LOGIN TESTE MERCADO PAGO ====
+#Conta Vendedor Teste:
+User: TESTUSER227834905
+Senha: IuvJHyRjXI
+
+# Conta Comprador Teste:
+Codigo verificação: 456058
+User: TESTUSER525293423
+Senha: FUUDca30PG
