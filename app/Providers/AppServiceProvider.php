@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\QueuedVerifyEmail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        VerifyEmail::toMailUsing(function ($notifiable, $url) {
+            return (new QueuedVerifyEmail)->toMail($notifiable, $url);
+        });
     }
 }

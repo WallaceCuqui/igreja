@@ -1,20 +1,31 @@
-@extends('layouts.app')
+<x-guest-layout>
+    <div class="mb-4 text-sm text-gray-600">
+        {{ __('Antes de continuar, verifique seu endereço de e-mail clicando no link que enviamos para você.') }}
+    </div>
 
-@section('title', 'Verifique seu E-mail')
+    @if (session('status') == 'verification-link-sent')
+        <div class="mb-4 font-medium text-sm text-green-600">
+            {{ __('Um novo link de verificação foi enviado para o endereço de e-mail que você forneceu no cadastro.') }}
+        </div>
+    @endif
 
-@section('content')
-<div class="container mx-auto max-w-md mt-20 bg-white p-6 rounded-xl shadow-md text-center">
-    <h2 class="text-2xl font-bold mb-4">Verifique seu e-mail</h2>
-    <p class="mb-4">
-        Antes de continuar, verifique seu e-mail clicando no link que enviamos.
-        Se você não recebeu o e-mail,
-    </p>
+    <div class="mt-4 flex items-center justify-between">
+        <form method="POST" action="{{ route('verification.send') }}">
+            @csrf
 
-    <form method="POST" action="{{ route('verification.send') }}">
-        @csrf
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">
-            Reenviar e-mail de verificação
-        </button>
-    </form>
-</div>
-@endsection
+            <div>
+                <x-primary-button>
+                    {{ __('Reenviar e-mail de verificação') }}
+                </x-primary-button>
+            </div>
+        </form>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+
+            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                {{ __('Sair') }}
+            </button>
+        </form>
+    </div>
+</x-guest-layout>
