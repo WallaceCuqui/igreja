@@ -2,8 +2,10 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Admin\Resources\UserResource;
-use App\Filament\Admin\Resources\RoleResource;
+use Illuminate\Support\Facades\Log;
+
+use App\Filament\Resources\UserResource;
+use App\Filament\Resources\RoleResource;
 
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -26,10 +28,18 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        Log::info('🧩 AdminPanelProvider carregado', [
+            'user_id' => auth()->id(),
+            'user' => auth()->user()?->email,
+        ]);
+
+        Log::info('Guard atual', ['guard' => config('filament.auth.guard')]);
+
         return $panel
             ->id('admin')
             ->path('admin')
             ->login() // Ativa a tela de login do Filament
+            ->authGuard('web')
             ->resources([
                 UserResource::class,
             ])
@@ -49,7 +59,7 @@ class AdminPanelProvider extends PanelProvider
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
-                StartSession::class,
+                StartSession::class, // ← importante estar antes de AuthenticateSession
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
