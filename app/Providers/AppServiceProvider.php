@@ -22,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         VerifyEmail::toMailUsing(function ($notifiable, $url) {
-            return (new QueuedVerifyEmail)->toMail($notifiable, $url);
+            return (new QueuedVerifyEmail($url))->toMail($notifiable);
         });
     }
+
 }

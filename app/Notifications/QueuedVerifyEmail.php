@@ -8,15 +8,21 @@ use Illuminate\Bus\Queueable;
 
 class QueuedVerifyEmail extends VerifyEmail implements ShouldQueue
 {
-    use Queueable; // adiciona todas as propriedades necessárias, incluindo $connection
+    use Queueable;
 
-    public function via($notifiable)
+    protected $customUrl;
+
+    public function __construct($url)
     {
-        return parent::via($notifiable);
+        $this->customUrl = $url;
     }
 
     public function toMail($notifiable)
     {
-        return parent::toMail($notifiable);
+        return (new \Illuminate\Notifications\Messages\MailMessage)
+            ->subject('Confirmação de E-mail')
+            ->line('Clique no botão abaixo para confirmar seu endereço de e-mail.')
+            ->action('Confirmar E-mail', $this->customUrl)
+            ->line('Se você não criou uma conta, ignore este e-mail.');
     }
 }

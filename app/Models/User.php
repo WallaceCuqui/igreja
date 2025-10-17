@@ -9,6 +9,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use App\Notifications\QueuedVerifyEmail;
 
+
 class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable, HasRoles;
@@ -34,18 +35,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected static function booted()
     {
         static::created(function ($user) {
-            // Só envia e-mail se o usuário não tiver email verificado
-            if (!$user->hasVerifiedEmail()) {
-                $user->notify((new VerifyEmail())->queue());
-            }
+            //
         });
     }
 
-    /**
-     * Sobrescreve o envio de e-mail de verificação para usar fila.
-     */
-    public function sendEmailVerificationNotification()
-    {
-        $this->notify(new QueuedVerifyEmail);
-    }
 }
