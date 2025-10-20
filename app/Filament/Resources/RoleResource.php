@@ -3,53 +3,63 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoleResource\Pages;
-
 use Filament\Resources\Resource;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
 use Filament\Forms;
-use Filament\Tables;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Illuminate\Database\Eloquent\Model;
 
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
-    protected static ?string $navigationLabel = 'Grupos de Acesso';
-    protected static ?string $pluralModelLabel = 'Grupos de Acesso';
-    protected static ?string $slug = 'grupos-de-acesso';
+    protected static ?string $navigationLabel = 'Grupos';
+    protected static ?string $navigationGroup = 'Administração';
 
-    public static function form(Form $form): Form
+    public static function form(Forms\Form $form): Forms\Form
     {
-        return $form->schema([
-            TextInput::make('name')
-                ->label('Nome do Grupo')
-                ->required(),
+        return $form
+            ->schema([
+                // Campo para o nome do grupo
+                TextInput::make('name')
+                    ->label('Nome do Grupo')
+                    ->required()
+                    ->maxLength(50),
 
-            CheckboxList::make('permissions')
-                ->label('Permissões')
-                ->options(function () {
-                    return Permission::all()->pluck('name', 'id');
-                })
-                ->columns(2),
-        ]);
+                // CheckboxList para selecionar permissões
+                CheckboxList::make('permissions')
+                    ->label('Permissões')
+                    ->options([
+                        'view' => 'Ver',
+                        'create' => 'Criar',
+                        'edit' => 'Editar',
+                        'delete' => 'Deletar',
+                    ])
+                    ->columns(4) // mostra em 4 colunas
+                    ->saveRelationships(), // importante para salvar no Spatie
+            ]);
     }
 
-    public static function table(Table $table): Table
+    public static function table(Tables\Table $table): Tables\Table
     {
-        return $table->columns([
-            TextColumn::make('name')->label('Grupo'),
-        ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [];
+        return $table
+            ->columns([
+                TextColumn::make('name')->label('Nome do Grupo')->sortable()->searchable(),
+                TextColumn::make('permissions')->label('Permissões')->getStateUsing(function ($record) {
+                    return $record->permissions->pluck('name')->join(', ');
+                }),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]);
     }
 
     public static function getPages(): array

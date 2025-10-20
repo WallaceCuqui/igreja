@@ -3,17 +3,10 @@
 namespace App\Filament\Resources\RoleResource\Pages;
 
 use App\Filament\Resources\RoleResource;
+use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
-use Spatie\Permission\Models\Permission;
 
 class CreateRole extends CreateRecord
 {
     protected static string $resource = RoleResource::class;
-
-    protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
-    {
-        $role = static::getModel()::create(['name' => $data['name']]);
-        $role->syncPermissions(Permission::whereIn('id', $data['permissions'])->get());
-        return $role;
-    }
 }

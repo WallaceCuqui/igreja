@@ -5,12 +5,14 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
+use Filament\Resources\Resource;
+
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 
-use Filament\Resources\Resource;
+
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -20,12 +22,27 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
-    protected static ?string $model = User::class;
+    protected static bool $shouldRegisterNavigation = true;
+    protected static ?string $navigationLabel = 'Usuários';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationGroup = 'Administração';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->hasRole('superuser');
+    }
+
 
     public static function form(Form $form): Form
     {
+        $user = auth()->user();
+        \Log::info('🔹 Usuário logado no UserResource', [
+            'id' => $user?->id,
+            'email' => $user?->email,
+            'roles' => $user?->roles?->pluck('name')->toArray(),
+        ]);
+
         return $form
             ->schema([
                 TextInput::make('name')
@@ -55,6 +72,13 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $user = auth()->user();
+        \Log::info('🔹 Usuário logado no UserResource', [
+            'id' => $user?->id,
+            'email' => $user?->email,
+            'roles' => $user?->roles?->pluck('name')->toArray(),
+        ]);
+
         return $table
             ->columns([
                 TextColumn::make('name')->sortable()->searchable(),
@@ -85,6 +109,13 @@ class UserResource extends Resource
 
     public static function getPages(): array
     {
+        $user = auth()->user();
+        \Log::info('🔹 Usuário logado no UserResource', [
+            'id' => $user?->id,
+            'email' => $user?->email,
+            'roles' => $user?->roles?->pluck('name')->toArray(),
+        ]);
+
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
