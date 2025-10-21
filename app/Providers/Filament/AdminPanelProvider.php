@@ -25,11 +25,11 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         $user = auth()->user();
-        \Log::info('🔹 Usuário logado no AdminPanelProvider', [
+        /*\Log::info('🔹 Usuário logado no AdminPanelProvider', [
             'id' => $user?->id,
             'email' => $user?->email,
             'roles' => $user?->roles?->pluck('name')->toArray(),
-        ]);
+        ]);*/
 
 
         return $panel

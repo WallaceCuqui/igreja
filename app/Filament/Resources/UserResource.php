@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use Illuminate\Support\Facades\Log;
+
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
@@ -20,28 +22,28 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+//Para verificar as permissões
+use App\Filament\Resources\Traits\HasModuleAccess;
+
 class UserResource extends Resource
 {
     protected static bool $shouldRegisterNavigation = true;
-    protected static ?string $navigationLabel = 'Usuários';
+    protected static ?string $navigationLabel = 'Users';
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'Administração';
 
-    public static function canViewAny(): bool
-    {
-        $user = auth()->user();
-        return $user && $user->hasRole('superuser');
-    }
+    // só define qual módulo será usado
+    protected static string $moduleForAccess = 'users';
 
 
     public static function form(Form $form): Form
     {
         $user = auth()->user();
-        \Log::info('🔹 Usuário logado no UserResource', [
+        /*\Log::info('🔹 Usuário logado no UserResource', [
             'id' => $user?->id,
             'email' => $user?->email,
             'roles' => $user?->roles?->pluck('name')->toArray(),
-        ]);
+        ]);*/
 
         return $form
             ->schema([
@@ -64,7 +66,7 @@ class UserResource extends Resource
                 Select::make('roles')
                     ->multiple()
                     ->relationship('roles', 'name')
-                    ->label('Papéis')
+                    ->label('Grupo Acesso')
                     ->preload(),
             ]);
         
@@ -73,11 +75,11 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         $user = auth()->user();
-        \Log::info('🔹 Usuário logado no UserResource', [
+        /*\Log::info('🔹 Usuário logado no UserResource', [
             'id' => $user?->id,
             'email' => $user?->email,
             'roles' => $user?->roles?->pluck('name')->toArray(),
-        ]);
+        ]);*/
 
         return $table
             ->columns([
@@ -110,11 +112,11 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         $user = auth()->user();
-        \Log::info('🔹 Usuário logado no UserResource', [
+        /*\Log::info('🔹 Usuário logado no UserResource', [
             'id' => $user?->id,
             'email' => $user?->email,
             'roles' => $user?->roles?->pluck('name')->toArray(),
-        ]);
+        ]);*/
 
         return [
             'index' => Pages\ListUsers::route('/'),

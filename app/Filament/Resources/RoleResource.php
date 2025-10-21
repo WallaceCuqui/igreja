@@ -2,63 +2,88 @@
 
 namespace App\Filament\Resources;
 
+use Illuminate\Support\Facades\Log;
 use App\Filament\Resources\RoleResource\Pages;
-use Filament\Resources\Resource;
 use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Tables;
+use Filament\Resources\Resource;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+
+
+//Para verificar as permissões
+use App\Filament\Resources\Traits\HasModuleAccess;
 
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
     protected static ?string $navigationLabel = 'Grupos';
     protected static ?string $navigationGroup = 'Administração';
+    protected static bool $shouldRegisterNavigation = true;
 
-    public static function form(Forms\Form $form): Forms\Form
+    // só define qual módulo será usado
+    protected static string $moduleForAccess = 'roles';
+
+    public static function form(Form $form): Form
     {
+        $modules = config('modules.modules'); // ['users' => 'Usuários', 'roles' => 'Grupos', ...]
+        $actions = ['view' => 'Ver', 'create' => 'Criar', 'edit' => 'Editar', 'delete' => 'Excluir'];
+
+        $fieldsets = [];
+
+        foreach ($modules as $moduleKey => $moduleLabel) {
+            $checkboxes = [];
+
+            foreach ($actions as $actionKey => $actionLabel) {
+                $permissionName = "{$moduleKey}.{$actionKey}";
+
+                $checkboxes[] = Checkbox::make("permissions.{$permissionName}")
+                    ->label($actionLabel)
+                    ->afterStateHydrated(function ($state, callable $set, $record = null) use ($permissionName) {
+                        if ($record && Permission::where('name', $permissionName)->exists()) {
+                            if ($record->hasPermissionTo($permissionName)) {
+                                $set('permissions.' . $permissionName, true);
+                            }
+                        }
+                    });
+
+
+
+            }
+
+            $fieldsets[] = Fieldset::make($moduleLabel)
+                ->schema($checkboxes)
+                ->columns(4);
+        }
+
         return $form
-            ->schema([
-                // Campo para o nome do grupo
+            ->schema(array_merge([
                 TextInput::make('name')
                     ->label('Nome do Grupo')
                     ->required()
                     ->maxLength(50),
-
-                // CheckboxList para selecionar permissões
-                CheckboxList::make('permissions')
-                    ->label('Permissões')
-                    ->options([
-                        'view' => 'Ver',
-                        'create' => 'Criar',
-                        'edit' => 'Editar',
-                        'delete' => 'Deletar',
-                    ])
-                    ->columns(4) // mostra em 4 colunas
-                    ->saveRelationships(), // importante para salvar no Spatie
-            ]);
+            ], $fieldsets));
     }
 
-    public static function table(Tables\Table $table): Tables\Table
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Nome do Grupo')->sortable()->searchable(),
-                TextColumn::make('permissions')->label('Permissões')->getStateUsing(function ($record) {
-                    return $record->permissions->pluck('name')->join(', ');
-                }),
+                TextColumn::make('name')->label('Nome')->sortable()->searchable(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make(), // botão de deletar único
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                DeleteBulkAction::make(), // deletar múltiplos
             ]);
     }
 
