@@ -27,13 +27,16 @@ use App\Filament\Resources\Traits\HasModuleAccess;
 
 class UserResource extends Resource
 {
-    protected static bool $shouldRegisterNavigation = true;
+    
+
+    // só define qual módulo será usado
+    // o nome do módulo deve ser igual ao definido em config/modules.php
+    use HasModuleAccess;
+    protected static string $moduleForAccess = 'users';
+
     protected static ?string $navigationLabel = 'Users';
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'Administração';
-
-    // só define qual módulo será usado
-    protected static string $moduleForAccess = 'users';
 
 
     public static function form(Form $form): Form

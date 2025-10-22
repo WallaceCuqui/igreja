@@ -23,14 +23,16 @@ use App\Filament\Resources\Traits\HasModuleAccess;
 
 class RoleResource extends Resource
 {
+    // só define qual módulo será usado
+    // o nome do módulo deve ser igual ao definido em config/modules.php
+    use HasModuleAccess;
+    protected static string $moduleForAccess = 'roles';
+
     protected static ?string $model = Role::class;
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
-    protected static ?string $navigationLabel = 'Grupos';
+    protected static ?string $navigationLabel = 'Grupos Permissões';
     protected static ?string $navigationGroup = 'Administração';
-    protected static bool $shouldRegisterNavigation = true;
 
-    // só define qual módulo será usado
-    protected static string $moduleForAccess = 'roles';
 
     public static function form(Form $form): Form
     {

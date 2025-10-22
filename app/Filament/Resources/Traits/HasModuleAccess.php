@@ -2,36 +2,63 @@
 
 namespace App\Filament\Resources\Traits;
 
-use function App\Helpers\acesso;
+use Illuminate\Support\Facades\Log;
 
 trait HasModuleAccess
 {
-    /**
-     * Define o módulo que será usado para verificar permissões
-     */
-    protected static string $moduleForAccess = '';
-
     public static function canViewAny(): bool
     {
-        $perms = acesso(static::$moduleForAccess);
-        return $perms['view'] ?? false;
+        return static::checkAccess('view');
+    }
+
+    public static function canView($record): bool
+    {
+        return static::checkAccess('view');
     }
 
     public static function canCreate(): bool
     {
-        $perms = acesso(static::$moduleForAccess);
-        return $perms['create'] ?? false;
+        return static::checkAccess('create');
     }
 
     public static function canEdit($record): bool
     {
-        $perms = acesso(static::$moduleForAccess);
-        return $perms['edit'] ?? false;
+        return static::checkAccess('edit');
     }
 
     public static function canDelete($record): bool
     {
-        $perms = acesso(static::$moduleForAccess);
-        return $perms['delete'] ?? false;
+        return static::checkAccess('delete');
+    }
+
+    /**
+     * Faz a verificação de acesso usando o módulo definido no Resource.
+     */
+    protected static function checkAccess(string $action): bool
+    {
+        try {
+            $module = static::$moduleForAccess ?? null;
+
+            if (!$module) {
+                Log::warning('⚠️ Nenhum módulo definido em $moduleForAccess no resource.');
+                return false;
+            }
+
+            $permissions = acesso($module); // chama o helper global
+            Log::info('🔍 Verificando permissão', [
+                'module' => $module,
+                'action' => $action,
+                'permissions' => $permissions,
+            ]);
+
+            // Se o usuário tiver a ação específica no módulo, libera o acesso
+            return in_array($action, $permissions, true);
+        } catch (\Throwable $e) {
+            Log::error('❌ Erro ao verificar acesso', [
+                'action' => $action,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
     }
 }
