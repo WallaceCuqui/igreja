@@ -2,7 +2,7 @@
 
 return [
     'modules' => [
-        'users' => 'Users',
+        'users' => 'Usuários',
         'roles' => 'Grupos Permissões',
 
     ],

@@ -24,18 +24,51 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request)
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'documento' => 'nullable|string|max:20',
+            'nome_fantasia' => 'nullable|string|max:255',
+            'genero' => 'nullable|string|max:20',
+            'data_nascimento' => 'nullable|date',
+            'cep' => 'nullable|string|max:9',
+            'endereco' => 'nullable|string|max:255',
+            'numero' => 'nullable|string|max:10',
+            'complemento' => 'nullable|string|max:255',
+            'bairro' => 'nullable|string|max:255',
+            'cidade' => 'nullable|string|max:255',
+            'estado' => 'nullable|string|max:2',
+            'telefone' => 'nullable|string|max:20',
+        ]);
 
-        $request->user()->save();
+        $user->update([
+            'name' => $request->name,
+        ]);
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        $user->detalhesUsuario()->updateOrCreate(
+            ['user_id' => $user->id],
+            $request->only([
+                'documento',
+                'nome_fantasia',
+                'genero',
+                'data_nascimento',
+                'cep',
+                'endereco',
+                'numero',
+                'complemento',
+                'bairro',
+                'cidade',
+                'estado',
+                'telefone',
+            ])
+        );
+
+        return back()->with('status', 'profile-updated');
     }
+
 
     /**
      * Delete the user's account.

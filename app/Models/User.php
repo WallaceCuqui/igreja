@@ -40,4 +40,10 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
+    // Associação com DetalhesUsuario
+    public function detalhesUsuario()
+    {
+        return $this->hasOne(DetalhesUsuario::class, 'user_id');
+    }
+
 }
