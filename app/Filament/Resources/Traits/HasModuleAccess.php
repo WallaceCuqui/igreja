@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Traits;
 
 use Illuminate\Support\Facades\Log;
+use App\Models\User;
 
 trait HasModuleAccess
 {
@@ -37,6 +38,14 @@ trait HasModuleAccess
     protected static function checkAccess(string $action): bool
     {
         try {
+
+            // Se houver apenas 1 usuário no banco, libera total
+            if (User::count() === 1) {
+                Log::info('🔓 Apenas 1 usuário no banco, acesso total liberado.');
+                return true;
+            }
+
+
             $module = static::$moduleForAccess ?? null;
 
             if (!$module) {

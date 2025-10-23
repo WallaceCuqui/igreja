@@ -11,37 +11,36 @@ class CreateRole extends CreateRecord
     protected static string $resource = RoleResource::class;
 
     protected function mutateFormDataBeforeCreate(array $data): array
-{
-    // apenas filtra dados que vão para a tabela
-    return [
-        'name' => $data['name'],
-        'permissions' => $data['permissions'] ?? [],
-    ];
-}
+    {
+        unset($data['permissions']); // remove o array de checkboxes antes de salvar na tabela roles
+        return $data;
+    }
 
-protected function afterCreate(): void
-{
-    $permissions = $this->form->getState()['permissions'] ?? [];
-    $flattened = [];
-    foreach ($permissions as $module => $actions) {
-        foreach ($actions as $action => $value) {
-            if ($value) {
-                $flattened[] = "{$module}.{$action}";
+
+    protected function afterCreate(): void
+    {
+        $permissions = $this->form->getState()['permissions'] ?? [];
+        $flattened = [];
+        foreach ($permissions as $module => $actions) {
+            foreach ($actions as $action => $value) {
+                if ($value) {
+                    $flattened[] = "{$module}.{$action}";
+                }
             }
         }
+
+        // Cria as permissões se não existirem
+        foreach ($flattened as $permissionName) {
+            Permission::firstOrCreate([
+                'name' => $permissionName,
+                'guard_name' => 'web',
+            ]);
+        }
+
+        // Sincroniza com o role
+        $this->record->syncPermissions($flattened);
+
     }
-
-    Log::info('🔹 Permissões a salvar após criar', ['permissions' => $flattened]);
-
-    foreach ($flattened as $permissionName) {
-        Permission::firstOrCreate([
-            'name' => $permissionName,
-            'guard_name' => 'web',
-        ]);
-    }
-
-    $this->record->syncPermissions($flattened);
-}
 
 
 }

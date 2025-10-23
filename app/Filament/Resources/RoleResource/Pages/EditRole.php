@@ -13,7 +13,7 @@ class EditRole extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        unset($data['permissions']);
+        unset($data['permissions']); // remove antes de atualizar
         return $data;
     }
 
@@ -21,9 +21,7 @@ class EditRole extends EditRecord
     {
         // Pega o estado do formulário
         $permissions = $this->form->getState()['permissions'] ?? [];
-
         $flattened = [];
-
         foreach ($permissions as $module => $actions) {
             foreach ($actions as $action => $value) {
                 if ($value) {
@@ -32,25 +30,16 @@ class EditRole extends EditRecord
             }
         }
 
-        // Log para verificar
-        \Log::info('🔹 Permissões corretas para salvar', ['flattened_permissions' => $flattened]);
-
         // Cria as permissões se não existirem
         foreach ($flattened as $permissionName) {
-            \Spatie\Permission\Models\Permission::firstOrCreate([
+            Permission::firstOrCreate([
                 'name' => $permissionName,
                 'guard_name' => 'web',
             ]);
         }
 
-        // Sincroniza com o Role
+        // Sincroniza com o role
         $this->record->syncPermissions($flattened);
-
-
-            \Log::info('✅ Permissões sincronizadas com o Role', [
-                'role_id' => $this->record->id,
-                'permissions' => $flattened,
-            ]);
     }
 
 }

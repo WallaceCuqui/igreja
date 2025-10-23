@@ -45,6 +45,7 @@ class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'Administração';
 
+    
 
     public static function form(Form $form): Form
     {
@@ -79,36 +80,52 @@ class UserResource extends Resource
                     ->label('Grupo Acesso')
                     ->preload(),
 
-                Section::make('Dados do Usuário')
+               Section::make('Dados do Usuário')
                     ->relationship('detalhesUsuario')
                     ->schema([
-                        TextInput::make('nome_fantasia')->label('Nome Fantasia'),
+
+                        TextInput::make('telefone')->label('Telefone'),
+                        
+                        // Documento
                         TextInput::make('documento')
                             ->label('CPF/CNPJ')
                             ->live(onBlur: true)
                             ->rule(function ($get, $record) {
-                                $userId = $record?->id; // pega o id do usuário principal
+                                $userId = $record?->id; 
                                 return Rule::unique('detalhes_usuario', 'documento')->ignore($userId, 'user_id');
                             })
                             ->rule(new DocumentoValido()),
+                        
+                        // Nome Fantasia (apenas CNPJ)
+                        TextInput::make('nome_fantasia')
+                            ->label('Nome Fantasia')
+                            ->visible(fn ($get) => strlen(preg_replace('/\D/', '', $get('documento') ?? '')) === 14),
+
+                        // Gênero (apenas CPF)
                         Select::make('genero')
                             ->label('Gênero')
                             ->options([
                                 'Masculino' => 'Masculino',
                                 'Feminino' => 'Feminino',
                                 'Outro' => 'Outro',
-                            ]),
-                        DatePicker::make('data_nascimento')->label('Data de Nascimento'),
+                            ])
+                            ->visible(fn ($get) => strlen(preg_replace('/\D/', '', $get('documento') ?? '')) <= 11),
 
+                        // Data de nascimento (apenas CPF)
+                        DatePicker::make('data_nascimento')
+                            ->label('Data de Nascimento')
+                            ->visible(fn ($get) => strlen(preg_replace('/\D/', '', $get('documento') ?? '')) <= 11),
+
+                        // CEP com busca automática
                         TextInput::make('cep')
                             ->label('CEP')
                             ->mask('99999-999')
                             ->live(debounce: 500)
-                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            ->afterStateUpdated(function ($state, callable $set) {
                                 $cep = preg_replace('/\D/', '', $state);
 
                                 if (strlen($cep) === 8) {
-                                    $set('buscando_cep', true); // ativa aviso
+                                    $set('buscando_cep', true);
 
                                     try {
                                         $response = @file_get_contents("https://viacep.com.br/ws/{$cep}/json/");
@@ -125,12 +142,13 @@ class UserResource extends Resource
                                         // opcional: mensagem de erro
                                     }
 
-                                    $set('buscando_cep', false); // desativa aviso
+                                    $set('buscando_cep', false);
                                 } else {
                                     $set('buscando_cep', false);
                                 }
                             }),
 
+                        // Outros campos
                         TextInput::make('endereco')->label('Endereço'),
                         TextInput::make('numero')->label('Número'),
                         TextInput::make('complemento')->label('Complemento'),
@@ -138,8 +156,7 @@ class UserResource extends Resource
                         TextInput::make('cidade')->label('Cidade'),
                         TextInput::make('estado')->label('Estado'),
                         
-                        TextInput::make('telefone')->label('Telefone'),
-                    ]),
+                        ]),
                 
             ])
             ->columns(2);
