@@ -31,6 +31,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 //Para verificar as permissões
 use App\Filament\Resources\Traits\HasModuleAccess;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 
 class UserResource extends Resource
 {
@@ -187,11 +189,19 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                // Botão de editar (caso queira adicionar no futuro)
+                Tables\Actions\EditAction::make()
+                    ->visible(fn ($record) => static::canEdit($record)),
+
+                // Botão de deletar, só aparece se tiver permissão
+                DeleteAction::make()
+                    ->visible(fn ($record) => static::canDelete($record))
+                    ->authorize(fn ($record) => static::canDelete($record)), // reforço backend
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                DeleteBulkAction::make()
+                    ->visible(fn () => static::checkAccess('delete'))
+                    ->authorize(fn () => static::checkAccess('delete')), // reforço backend
             ]);
     }
 

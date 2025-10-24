@@ -10,8 +10,16 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 
+//Para verificar as permissões
+use App\Filament\Resources\Traits\HasModuleAccess;
+
 class AuditResource extends Resource
 {
+    // só define qual módulo será usado
+    // o nome do módulo deve ser igual ao definido em config/modules.php
+    use HasModuleAccess;
+    protected static string $moduleForAccess = 'audits';
+
     protected static ?string $model = Audit::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';

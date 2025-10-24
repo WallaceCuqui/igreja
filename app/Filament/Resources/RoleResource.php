@@ -2,27 +2,28 @@
 
 namespace App\Filament\Resources;
 
-use Illuminate\Support\Facades\Log;
 use App\Filament\Resources\RoleResource\Pages;
+
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
-
 //Para verificar as permissões
 use App\Filament\Resources\Traits\HasModuleAccess;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 
 class RoleResource extends Resource
 {
+    
     // só define qual módulo será usado
     // o nome do módulo deve ser igual ao definido em config/modules.php
     use HasModuleAccess;
@@ -33,10 +34,9 @@ class RoleResource extends Resource
     protected static ?string $navigationLabel = 'Grupos Permissões';
     protected static ?string $navigationGroup = 'Administração';
 
-
     public static function form(Form $form): Form
     {
-        $modules = config('modules.modules'); // ['users' => 'Usuários', 'roles' => 'Grupos', ...]
+        $modules = config('modules.modules');
         $actions = ['view' => 'Ver', 'create' => 'Criar', 'edit' => 'Editar', 'delete' => 'Excluir'];
 
         $fieldsets = [];
@@ -56,9 +56,6 @@ class RoleResource extends Resource
                             }
                         }
                     });
-
-
-
             }
 
             $fieldsets[] = Fieldset::make($moduleLabel)
@@ -79,13 +76,25 @@ class RoleResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Nome')->sortable()->searchable(),
+                TextColumn::make('name')
+                    ->label('Nome')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->actions([
-                DeleteAction::make(), // botão de deletar único
+                // Botão de editar (caso queira adicionar no futuro)
+                Tables\Actions\EditAction::make()
+                    ->visible(fn ($record) => static::canEdit($record)),
+
+                // Botão de deletar, só aparece se tiver permissão
+                DeleteAction::make()
+                    ->visible(fn ($record) => static::canDelete($record))
+                    ->authorize(fn ($record) => static::canDelete($record)), // reforço backend
             ])
             ->bulkActions([
-                DeleteBulkAction::make(), // deletar múltiplos
+                DeleteBulkAction::make()
+                    ->visible(fn () => static::checkAccess('delete'))
+                    ->authorize(fn () => static::checkAccess('delete')), // reforço backend
             ]);
     }
 

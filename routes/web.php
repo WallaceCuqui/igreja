@@ -19,4 +19,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Rotas linkadas ao módulo
+require __DIR__.'/protocolo.php';
 require __DIR__.'/auth.php';
