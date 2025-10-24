@@ -37,6 +37,7 @@ trait HasModuleAccess
      */
     protected static function checkAccess(string $action): bool
     {
+        Log::info('🔐 Verificando acesso para ação: ' . $action);
         try {
 
             // Se houver apenas 1 usuário no banco, libera total

@@ -72,6 +72,8 @@ class UserResource extends Resource
                     ->password()
                     ->required(fn ($record) => !$record)
                     ->label('Senha')
+                    ->hidden(fn($record) => $record !== null) // só mostra na criação
+                    ->required(fn($record) => $record === null) // obrigatório apenas na criação
                     ->dehydrateStateUsing(fn ($state) => bcrypt($state)),
 
                 Select::make('roles')

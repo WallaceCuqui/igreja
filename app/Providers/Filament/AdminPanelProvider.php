@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use App\Filament\Resources\UserResource;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -24,11 +25,12 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $user = auth()->user();
-        /*\Log::info('🔹 Usuário logado no AdminPanelProvider', [
-            'id' => $user?->id,
-            'email' => $user?->email,
-            'roles' => $user?->roles?->pluck('name')->toArray(),
+
+        /*\Log::info('🔑 Tentativa de login Admin', [
+            'id' => auth()->user()?->id,
+            'email' => auth()->user()?->email,
+            'senha_existe' => !empty(auth()->user()?->password),
+            'roles' => auth()->user()?->roles?->pluck('name')->toArray(),
         ]);*/
 
 
