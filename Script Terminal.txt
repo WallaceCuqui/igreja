@@ -6,7 +6,7 @@ git pull origin main
 # Para enviar as atualizações para o GitHub:
 
 git add .
-git commit -m "Atualizado dia 24/10/25 pc 2"
+git commit -m "Atualizado dia 24/10/25 pc 1"
 git push origin main
 
 
@@ -32,7 +32,8 @@ php artisan queue:work
 
 ==== OBSERVAÇÕES ======
 
-# Corrigir o Protocolo
+# Criar mecanismo de respostas para chamadas, como se fosse bate papo.
+# Criar Wigded para chamado na tela inicial do Admin
 
 
 

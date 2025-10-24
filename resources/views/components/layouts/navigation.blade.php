@@ -16,7 +16,7 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     <x-nav-link :href="route('protocolo.create')" :active="request()->routeIs('protocolo.create')">
-                        {{ __('Chamado') }}
+                        Chamado
                     </x-nav-link>
 
                 </div>
@@ -74,6 +74,9 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            <x-nav-link :href="route('protocolo.create')" :active="request()->routeIs('protocolo.create')">
+                Chamado
+            </x-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
