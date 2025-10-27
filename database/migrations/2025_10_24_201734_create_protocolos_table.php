@@ -14,11 +14,11 @@ return new class extends Migration {
             $table->string('nome');
             $table->string('email');
             $table->string('assunto');
-            $table->text('mensagem');
             $table->enum('status', ['aberto', 'em_atendimento', 'concluido', 'cancelado'])->default('aberto');
             $table->foreignId('atendido_por')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
+
     }
 
     public function down(): void

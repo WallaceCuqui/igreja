@@ -12,6 +12,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\ViewField;
+use App\Models\ProtocoloMensagem;
 
 //Para verificar as permissões
 use App\Filament\Resources\Traits\HasModuleAccess;
@@ -31,24 +34,57 @@ class ProtocoloResource extends Resource
     protected static ?string $navigationGroup = 'Atendimentos';
     protected static ?string $navigationLabel = 'Protocolos';
 
+    
+
     public static function form(Forms\Form $form): Forms\Form
     {
         return $form->schema([
-            TextInput::make('protocolo')->disabled()->label('Protocolo'),
-            TextInput::make('nome')->disabled(),
-            TextInput::make('email')->disabled(),
-            TextInput::make('assunto')->required(),
-            Textarea::make('mensagem')->rows(4)->disabled(),
-            Select::make('status')
-                ->options([
-                    'aberto' => 'Aberto',
-                    'em_atendimento' => 'Em atendimento',
-                    'concluido' => 'Concluído',
-                    'cancelado' => 'Cancelado',
+            Section::make('Dados do Protocolo')
+                ->schema([
+                    TextInput::make('protocolo')
+                        ->disabled()
+                        ->label('Número do Protocolo'),
+
+                    TextInput::make('nome')
+                        ->disabled()
+                        ->label('Nome'),
+
+                    TextInput::make('email')
+                        ->disabled()
+                        ->label('E-mail'),
+
+                    TextInput::make('assunto')
+                        ->label('Assunto')
+                        ->required(),
+
+                    Select::make('status')
+                        ->label('Status')
+                        ->options([
+                            'aberto' => 'Aberto',
+                            'em_atendimento' => 'Em atendimento',
+                            'concluido' => 'Concluído',
+                            'cancelado' => 'Cancelado',
+                        ])
+                        ->required(),
                 ])
-                ->required(),
+                ->columns(2),
+
+            Section::make('Mensagens')
+                ->schema([
+                    // Mostra o histórico de mensagens dentro do form
+                    ViewField::make('mensagens')
+                        ->view('filament.forms.protocolo-mensagens'),
+
+                    // Campo para nova resposta do atendente
+                    Textarea::make('nova_mensagem')
+                        ->label('Responder')
+                        ->rows(3)
+                        ->placeholder('Digite sua resposta...')
+                        ->dehydrated(false), // evita salvar no campo errado
+                ]),
         ]);
     }
+
 
     public static function table(Tables\Table $table): Tables\Table
     {

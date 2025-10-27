@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Protocolo;
+use App\Models\ProtocoloMensagem;
 use Illuminate\Http\Request;
 
 class ProtocoloController extends Controller
 {
     public function create()
     {
-        return view('protocolos.create');
+        return view('protocolos.create', [
+            'user' => auth()->user(),
+            'email' => auth()->user()?->email,
+        ]);
     }
 
     public function store(Request $request)
@@ -36,4 +40,23 @@ class ProtocoloController extends Controller
     {
         return view('protocolos.show', compact('protocolo'));
     }
+
+    
+
+    public function responder(Request $request, Protocolo $protocolo)
+    {
+        $validated = $request->validate([
+            'mensagem' => 'required|string',
+        ]);
+
+        ProtocoloMensagem::create([
+            'protocolo_id' => $protocolo->id,
+            'user_id' => auth()->id(),
+            'mensagem' => $validated['mensagem'],
+            'is_staff' => auth()->check(), // true se for staff logado
+        ]);
+
+        return redirect()->back()->with('success', 'Mensagem enviada com sucesso!');
+    }
+
 }

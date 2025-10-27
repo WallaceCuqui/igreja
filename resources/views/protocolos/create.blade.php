@@ -23,13 +23,13 @@
 
                     <div class="mb-4">
                         <label class="block font-semibold">Nome</label>
-                        <input type="text" name="nome" value="{{ old('nome') }}" class="border p-2 w-full rounded">
+                        <input type="text" name="nome" value="{{ $user->name ?? old('nome') }}" class="border p-2 w-full rounded">
                         @error('nome') <p class="text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div class="mb-4">
                         <label class="block font-semibold">E-mail</label>
-                        <input type="email" name="email" value="{{ old('email') }}" class="border p-2 w-full rounded">
+                        <input type="email" name="email" value="{{ $user->email ?? old('email') }}" class="border p-2 w-full rounded">
                         @error('email') <p class="text-red-600">{{ $message }}</p> @enderror
                     </div>
 

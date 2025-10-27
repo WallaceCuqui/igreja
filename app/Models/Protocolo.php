@@ -9,18 +9,23 @@ class Protocolo extends Model
 {
     use HasFactory;
 
+    protected $table = 'protocolos';
+
     protected $fillable = [
         'protocolo',
         'user_id',
         'nome',
         'email',
         'assunto',
-        'mensagem',
         'status',
         'atendido_por',
     ];
 
-    // Relacionamentos
+    public function mensagens()
+    {
+        return $this->hasMany(ProtocoloMensagem::class);
+    }
+
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -30,6 +35,7 @@ class Protocolo extends Model
     {
         return $this->belongsTo(User::class, 'atendido_por');
     }
+
 
     // Gera número de protocolo automaticamente
     protected static function boot()
