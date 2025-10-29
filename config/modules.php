@@ -6,5 +6,6 @@ return [
         'roles' => 'Grupos Permissões',
         'audits' => 'Auditoria',
         'protocolos' => 'Protocolos',
+        'notificacoes' => 'Notificações',
     ],
 ];

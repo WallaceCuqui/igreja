@@ -23,7 +23,7 @@ class ProtocoloMensagem extends Model
         return $this->belongsTo(Protocolo::class);
     }
 
-    public function usuario()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

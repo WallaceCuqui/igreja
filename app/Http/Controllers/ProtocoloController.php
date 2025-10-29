@@ -8,13 +8,22 @@ use Illuminate\Http\Request;
 
 class ProtocoloController extends Controller
 {
+
     public function create()
     {
+        $user = auth()->user();
+
+        $protocolos = Protocolo::where('user_id', $user->id)
+            ->latest()
+            ->get();
+
         return view('protocolos.create', [
-            'user' => auth()->user(),
-            'email' => auth()->user()?->email,
+            'user' => $user,
+            'email' => $user?->email,
+            'protocolos' => $protocolos,
         ]);
     }
+
 
     public function store(Request $request)
     {
@@ -25,16 +34,39 @@ class ProtocoloController extends Controller
             'mensagem' => 'required|string',
         ]);
 
-        $validated['user_id'] = auth()->id(); // se estiver logado
-        $validated['status'] = 'aberto';
-        $validated['numero'] = strtoupper(uniqid('PROTO-')); // número do protocolo
+        $data = [
+            'user_id' => auth()->id(),
+            'nome' => $validated['nome'],
+            'email' => $validated['email'],
+            'assunto' => $validated['assunto'],
+            'status' => 'aberto',
+            // certifique-se do nome correto da coluna: 'protocolo' na migration
+            'protocolo' => strtoupper(uniqid('PROTO-')),
+        ];
 
-        $protocolo = Protocolo::create($validated);
+        \DB::beginTransaction();
+        try {
+            $protocolo = Protocolo::create($data);
 
-        return redirect()
-            ->route('protocolo.show', $protocolo)
-            ->with('success', 'Seu protocolo foi criado com sucesso!');
+            // cria a mensagem inicial na tabela de mensagens
+            ProtocoloMensagem::create([
+                'protocolo_id' => $protocolo->id,
+                'user_id' => auth()->id(),
+                'mensagem' => $validated['mensagem'],
+                'is_staff' => false,
+            ]);
+
+            \DB::commit();
+
+            return redirect()
+                ->route('protocolo.show', $protocolo)
+                ->with('success', 'Seu protocolo foi criado com sucesso!');
+        } catch (\Throwable $e) {
+            \DB::rollBack();
+            return back()->withInput()->withErrors(['error' => 'Erro ao criar protocolo: ' . $e->getMessage()]);
+        }
     }
+
 
     public function show(Protocolo $protocolo)
     {

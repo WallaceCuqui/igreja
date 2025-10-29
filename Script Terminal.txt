@@ -6,7 +6,7 @@ git pull origin main
 # Para enviar as atualizações para o GitHub:
 
 git add .
-git commit -m "Atualizado dia 27/10/25 pc 2"
+git commit -m "Atualizado dia 29/10/25 pc 2"
 git push origin main
 
 
@@ -32,8 +32,7 @@ php artisan queue:work
 
 ==== OBSERVAÇÕES ======
 
-# Criar mecanismo de respostas para chamadas, como se fosse bate papo.
-# Criar Wigded para chamado na tela inicial do Admin
+# arrumar a notificação no blade
 
 
 
@@ -66,3 +65,10 @@ Senha: IuvJHyRjXI
 Codigo verificação: 456058
 User: TESTUSER525293423
 Senha: FUUDca30PG
+
+==== CRIAR ARQUIVOS ====
+
+php artisan make:migration create_nome_da_tabela_table
+php artisan make:model ProtocoloMensagem
+php artisan make:filament-resource NomeDoModelo
+

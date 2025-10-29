@@ -22,6 +22,39 @@
                 </div>
             </div>
 
+            <div x-data="notificacoes()" class="relative ms-4">
+                <button @click="abrir()" class="relative">
+                    <!-- ícone do sininho -->
+                    <svg class="h-6 w-6 text-gray-600">...</svg>
+
+                    <template x-if="count > 0">
+                        <span class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full text-xs px-1" x-text="count"></span>
+                    </template>
+                </button>
+
+                <div x-show="open" @click.outside="fechar()" class="absolute right-0 mt-2 w-80 bg-white border rounded shadow z-50">
+                    <div class="p-2 border-b flex justify-between items-center">
+                        <div class="font-medium">Notificações</div>
+                        <button @click="marcarTodasLidas()" class="text-sm text-blue-600">Marcar todas como lidas</button>
+                    </div>
+
+                    <template x-for="n in notificacoes" :key="n.id">
+                        <div class="p-3 border-b flex justify-between items-start">
+                            <div>
+                                <div class="font-semibold" x-text="n.titulo"></div>
+                                <div class="text-sm text-gray-600" x-text="n.mensagem"></div>
+                                <div class="text-xs text-gray-400" x-text="n.created_at"></div>
+                            </div>
+                            <div class="ms-2">
+                                <button @click="ocultar(n.id)" class="text-xs text-gray-500">Ocultar</button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div x-show="notificacoes.length === 0" class="p-3 text-sm text-gray-500">Nenhuma notificação</div>
+                </div>
+            </div>
+
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">

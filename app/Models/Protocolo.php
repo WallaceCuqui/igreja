@@ -26,7 +26,7 @@ class Protocolo extends Model
         return $this->hasMany(ProtocoloMensagem::class);
     }
 
-    public function usuario()
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }

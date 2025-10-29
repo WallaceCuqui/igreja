@@ -52,4 +52,48 @@
             </div>
         </div>
     </div>
+
+    <!-- Lista de chamados do usuário -->
+<div class="bg-white p-6 rounded shadow mt-6">
+    <h2 class="text-lg font-semibold mb-4">Meus chamados</h2>
+
+    @if($protocolos->isEmpty())
+        <div class="text-sm text-gray-500">Você ainda não abriu nenhum protocolo.</div>
+    @else
+        <div class="space-y-3">
+            @foreach($protocolos as $p)
+                <div class="flex items-center justify-between p-3 border rounded">
+                    <div>
+                        <div class="text-sm text-gray-600">Protocolo: <strong>{{ $p->protocolo ?? $p->id }}</strong></div>
+                        <div class="font-medium">{{ $p->assunto }}</div>
+                        <div class="text-xs text-gray-500">Criado em {{ $p->created_at->format('d/m/Y H:i') }}</div>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        @php
+                            $statusLabels = [
+                                'aberto' => ['label' => 'Aberto', 'class' => 'bg-blue-100 text-blue-800'],
+                                'em_atendimento' => ['label' => 'Em atendimento', 'class' => 'bg-yellow-100 text-yellow-800'],
+                                'concluido' => ['label' => 'Concluído', 'class' => 'bg-green-100 text-green-800'],
+                                'cancelado' => ['label' => 'Cancelado', 'class' => 'bg-red-100 text-red-800'],
+                            ];
+                            $s = $statusLabels[$p->status] ?? ['label' => $p->status, 'class' => 'bg-gray-100 text-gray-800'];
+                        @endphp
+
+                        <span class="px-2 py-1 text-xs rounded {{ $s['class'] }}">{{ $s['label'] }}</span>
+
+                        <a href="{{ route('protocolo.show', $p) }}" class="text-sm text-blue-600 hover:underline">Ver</a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        @if(method_exists($protocolos, 'links'))
+            <div class="mt-4">
+                {{ $protocolos->links() }}
+            </div>
+        @endif
+    @endif
+</div>
+
 </x-layouts.app>
