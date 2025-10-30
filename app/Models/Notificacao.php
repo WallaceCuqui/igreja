@@ -36,10 +36,11 @@ class Notificacao extends Model
     }
     
     // pivot lidos/ocultadas
-    public function lidos(): HasMany
+    public function lidasOcultadas()
     {
-        return $this->hasMany(NotificacaoLidaOcultada::class, 'notificacao_id');
+        return $this->hasMany(\App\Models\NotificacaoLidaOcultada::class, 'notificacao_id');
     }
+
 
     // opcional: scope para notificações ativas
     public function scopeAtivas($query)

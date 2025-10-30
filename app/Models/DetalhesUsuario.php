@@ -25,6 +25,7 @@ class DetalhesUsuario extends Model
         'estado',
         'cep',
         'telefone',
+        'foto',
     ];
 
     public function user()

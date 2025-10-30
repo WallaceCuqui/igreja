@@ -3,12 +3,28 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    </a>
+                <!-- Logo + Foto do Perfil -->
+                <div class="shrink-0 flex items-center gap-3">
+                    @if (Auth::user()?->detalhesUsuario?->foto)
+                        <a href="{{ route('dashboard') }}" class="relative">
+                            <img
+                                src="{{ asset('storage/' . Auth::user()->detalhesUsuario->foto) }}"
+                                alt="Foto de perfil"
+                                class="h-9 w-9 rounded-full object-cover border border-gray-300 hover:ring-2 hover:ring-indigo-400 transition duration-200"
+                            >
+                        </a>
+                    @else
+                        <!-- Ícone padrão quando não há foto -->
+                        <a href="{{ route('profile.edit') }}" class="relative">
+                            <div class="h-9 w-9 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 hover:ring-2 hover:ring-indigo-400 transition duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0" />
+                                </svg>
+                            </div>
+                        </a>
+                    @endif
                 </div>
+
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -22,41 +38,52 @@
                 </div>
             </div>
 
-            <div x-data="notificacoes()" class="relative ms-4">
-                <button @click="abrir()" class="relative">
-                    <!-- ícone do sininho -->
-                    <svg class="h-6 w-6 text-gray-600">...</svg>
-
-                    <template x-if="count > 0">
-                        <span class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full text-xs px-1" x-text="count"></span>
-                    </template>
-                </button>
-
-                <div x-show="open" @click.outside="fechar()" class="absolute right-0 mt-2 w-80 bg-white border rounded shadow z-50">
-                    <div class="p-2 border-b flex justify-between items-center">
-                        <div class="font-medium">Notificações</div>
-                        <button @click="marcarTodasLidas()" class="text-sm text-blue-600">Marcar todas como lidas</button>
-                    </div>
-
-                    <template x-for="n in notificacoes" :key="n.id">
-                        <div class="p-3 border-b flex justify-between items-start">
-                            <div>
-                                <div class="font-semibold" x-text="n.titulo"></div>
-                                <div class="text-sm text-gray-600" x-text="n.mensagem"></div>
-                                <div class="text-xs text-gray-400" x-text="n.created_at"></div>
-                            </div>
-                            <div class="ms-2">
-                                <button @click="ocultar(n.id)" class="text-xs text-gray-500">Ocultar</button>
-                            </div>
-                        </div>
-                    </template>
-
-                    <div x-show="notificacoes.length === 0" class="p-3 text-sm text-gray-500">Nenhuma notificação</div>
-                </div>
-            </div>
-
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <!-- Notificações -->
+                <div x-data="notificacoes()" x-init="carregar()" class="relative ms-4 z-50">
+                    <button @click="abrir()" class="relative">
+                        <!-- ícone do sininho -->
+                        <svg class="h-6 w-6 text-gray-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" 
+                                stroke="currentColor" class="h-6 w-6 text-gray-600">
+                                <path stroke-linecap="round" stroke-linejoin="round" 
+                                    d="M14.857 17.657A1.001 1.001 0 0016 17V9a4 4 0 10-8 0v8a1 1 0 001.143.657L12 18l2.857-.343z" />
+                            </svg>
+                        </svg>
+
+                        <template x-if="count > 0">
+                            <span class="absolute -top-1 -right-1 bg-red-600 text-white rounded-full text-xs px-1" x-text="count"></span>
+                        </template>
+                    </button>
+
+                    <div x-show="open" @click.outside="fechar()" class="absolute right-0 mt-2 w-80 bg-white border rounded shadow z-50">
+                        <div class="p-2 border-b flex justify-between items-center">
+                            <div class="font-medium">Notificações</div>
+                            <!--<button @click="marcarTodasLidas()" class="text-sm text-blue-600">Marcar todas como lidas</button>-->
+                        </div>
+
+                        <template x-for="n in notificacoes" :key="n.id">
+                            <div class="p-3 border-b flex justify-between items-start">
+                                <div>
+                                    <div class="font-semibold" x-text="n.titulo"></div>
+                                    <div class="text-sm text-gray-600" x-text="n.mensagem"></div>
+                                    <div class="text-xs text-gray-400" x-text="n.created_at_formatted"></div>
+
+                                </div>
+                                <div class="ms-2">
+                                    <button @click="ocultar(n.id)" class="text-xs text-gray-500">Ocultar</button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div x-show="notificacoes.length === 0" class="p-3 text-sm text-gray-500">Nenhuma notificação</div>
+                    </div>
+                </div>
+
+
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">

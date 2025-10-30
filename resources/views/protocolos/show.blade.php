@@ -17,7 +17,7 @@
                 <div class="space-y-4 max-h-96 overflow-y-auto p-2 bg-gray-50 rounded-lg">
                     @forelse ($protocolo->mensagens as $msg)
                         <div class="p-3 rounded-lg w-fit max-w-[80%] 
-                            @if($msg->is_staff) bg-blue-100 ml-auto text-right @else bg-gray-200 mr-auto text-left @endif">
+                            @if($msg->is_staff) bg-blue-100 @else bg-gray-200 mr-auto text-left @endif">
                             <p class="text-sm text-gray-800 whitespace-pre-line">{{ $msg->mensagem }}</p>
                             <p class="text-xs text-gray-500 mt-1">
                                 {{ $msg->user?->name ?? 'Usuário' }} — {{ $msg->created_at->format('d/m/Y H:i') }}

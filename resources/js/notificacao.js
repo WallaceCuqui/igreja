@@ -1,34 +1,54 @@
-// resources/js/notificacao.js
 export function notificacoes() {
     return {
         open: false,
         notificacoes: [],
         count: 0,
+
         async carregar() {
-            const res = await fetch('/notificacoes/lista');
-            this.notificacoes = await res.json();
-            const c = await fetch('/notificacoes/count');
-            const j = await c.json();
-            this.count = j.count ?? 0;
+            try {
+                const res = await route('notificacoes.lista'); // retorna URL
+                const json = await fetch(res).then(r => r.json());
+                this.notificacoes = json;
+
+                const c = await fetch(route('notificacoes.count')).then(r => r.json());
+                this.count = c.count ?? 0;
+            } catch (e) {
+                console.error('Erro ao carregar notificações:', e);
+            }
         },
+
         async abrir() {
             this.open = !this.open;
+
             if (this.open) {
                 await this.carregar();
-                await fetch('/notificacoes/marcar-todas-lidas', {
+
+                await fetch(route('notificacoes.marcarTodasLidas'), {
                     method: 'POST',
-                    headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')}
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
                 });
+
                 await this.carregar();
             }
         },
-        fechar() { this.open = false; },
+
+        fechar() {
+            this.open = false;
+        },
+
         async ocultar(id) {
-            await fetch(`/notificacoes/${id}/ocultar`, {
+            await fetch(route('notificacoes.ocultar', id), {
                 method: 'POST',
-                headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')}
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
             });
+
             await this.carregar();
-        }
+        },
     };
 }
+
+window.notificacoes = notificacoes;

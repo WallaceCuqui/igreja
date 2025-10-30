@@ -30,6 +30,9 @@ return new class extends Migration
             // Contato
             $table->string('telefone')->nullable();
 
+            // Foto ou logo
+            $table->string('foto')->nullable(); // <-- novo campo
+
             $table->timestamps();
         });
     }

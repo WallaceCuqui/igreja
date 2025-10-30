@@ -13,7 +13,7 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
         @csrf
         @method('patch')
 
@@ -36,6 +36,43 @@
         <h3 class="text-lg font-medium text-gray-900">
             Complementos do Perfil
         </h3>
+
+        <!-- Foto do Perfil -->
+        <div>
+            <x-input-label for="foto" :value="'Foto do Perfil'" />
+
+            <div class="flex items-center gap-4 mt-2">
+                @if ($user->detalhesUsuario && $user->detalhesUsuario->foto)
+                    <img src="{{ asset('storage/' . $user->detalhesUsuario->foto) }}"
+                        alt="Foto de perfil"
+                        class="w-24 h-24 rounded-full object-cover">
+                @else
+                    <img src="{{ asset('images/default-avatar.png') }}"
+                        alt="Foto padrão"
+                        class="w-24 h-24 rounded-full object-cover">
+                @endif
+
+                <input id="foto" name="foto" type="file"
+                    class="block w-full text-sm text-gray-500 
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-indigo-50 file:text-indigo-700
+                            hover:file:bg-indigo-100"
+                    accept="image/*">
+            </div>
+            @if ($user->detalhesUsuario && $user->detalhesUsuario->foto)
+                <button type="button"
+                        onclick="document.getElementById('remover-foto').value = 1; this.closest('form').submit();"
+                        class="mt-2 text-red-600 text-sm hover:underline">
+                    Remover foto
+                </button>
+            @endif
+
+            <input type="hidden" id="remover-foto" name="remover_foto" value="0">
+
+            <x-input-error class="mt-2" :messages="$errors->get('foto')" />
+        </div>
 
         <!-- Documento (CPF/CNPJ) -->
         <div>
@@ -135,6 +172,7 @@
                 :value="old('estado', $user->detalhesUsuario->estado ?? '')" maxlength="2" />
         </div>
 
+        
         <!-- Botão salvar -->
         <div class="flex items-center gap-4">
             <x-primary-button>Salvar</x-primary-button>
