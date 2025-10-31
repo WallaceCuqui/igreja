@@ -20,6 +20,8 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rotas linkadas ao módulo
-require __DIR__.'/notificacao.php';
-require __DIR__.'/protocolo.php';
 require __DIR__.'/auth.php';
+require __DIR__.'/protocolo.php';
+require __DIR__.'/notificacao.php';
+require __DIR__.'/relacoes.php';
+

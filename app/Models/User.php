@@ -70,6 +70,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->type === 'membro';
     }
 
+    // Relacaos (dependentes sem login)
+    public function relacoes()
+    {
+        return $this->hasMany(Relacao::class, 'membro_id');
+    }
+
+    // Relacionamentos familiares
+    public function relacionamentos()
+    {
+        return $this->hasMany(RelacionamentoFamiliar::class, 'user_id');
+    }
+
     // Nofificações lidas/ocultadas pelo usuário
     public function notificacoesLidas()
     {
