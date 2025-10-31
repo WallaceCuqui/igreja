@@ -19,6 +19,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'type', 
+        'igreja_id',
     ];
 
     protected $hidden = [
@@ -44,6 +46,28 @@ class User extends Authenticatable implements MustVerifyEmail
     public function detalhesUsuario()
     {
         return $this->hasOne(DetalhesUsuario::class, 'user_id');
+    }
+
+    // 👉 Igreja a que o membro pertence
+    public function igreja()
+    {
+        return $this->belongsTo(User::class, 'igreja_id');
+    }
+
+    // 👉 Membros da igreja
+    public function membros()
+    {
+        return $this->hasMany(User::class, 'igreja_id')->where('type', 'membro');
+    }
+
+    public function isIgreja()
+    {
+        return $this->type === 'igreja';
+    }
+
+    public function isMembro()
+    {
+        return $this->type === 'membro';
     }
 
     // Nofificações lidas/ocultadas pelo usuário
