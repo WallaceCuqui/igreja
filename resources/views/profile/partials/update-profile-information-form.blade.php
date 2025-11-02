@@ -47,9 +47,12 @@
                         alt="Foto de perfil"
                         class="w-24 h-24 rounded-full object-cover">
                 @else
-                    <img src="{{ asset('images/default-avatar.png') }}"
-                        alt="Foto padrão"
-                        class="w-24 h-24 rounded-full object-cover">
+                    <!-- Ícone padrão quando não há foto -->
+                    <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 hover:ring-2 hover:ring-indigo-400 transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0" />
+                         </svg>
+                    </div>
                 @endif
 
                 <input id="foto" name="foto" type="file"
@@ -81,6 +84,15 @@
                 :value="old('documento', $user->detalhesUsuario->documento ?? '')" />
             <x-input-error class="mt-2" :messages="$errors->get('documento')" />
         </div>
+
+        <div class="mt-2 flex items-center">
+            <input id="sem_cnpj" name="sem_cnpj" type="checkbox" value="1"
+                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+            <label for="sem_cnpj" class="ml-2 text-sm text-gray-700">
+                A igreja não possui CNPJ
+            </label>
+        </div>
+
 
         <!-- Nome Fantasia -->
         <div id="campo-nome-fantasia" style="display: none;">
@@ -117,6 +129,17 @@
                 :value="old('telefone', $user->detalhesUsuario->telefone ?? '')" placeholder="(00) 00000-0000" />
             <x-input-error class="mt-2" :messages="$errors->get('telefone')" />
         </div>
+
+        <!-- Igreja (vinculação) -->
+        <div id="campo-igreja" class="mt-4">
+            <x-input-label for="igreja_busca" value="Buscar Igreja" />
+            <input id="igreja_busca" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            <input id="igreja_id" type="hidden" name="igreja_id">
+            <ul id="lista-igrejas" class="border rounded mt-1 hidden bg-white max-h-60 overflow-auto"></ul>
+        </div>
+
+
+
 
         <!-- CEP -->
         <div>
@@ -188,6 +211,9 @@
     </form>
 
     <!-- Scripts para validar documentos e buscar endereço pelo CEP -->
+    @routes
+    <script src="{{ Vite::asset('resources/js/buscaIgreja.js') }}"></script>
+
     <script src="{{ asset('js/validaDocumento.js') }}"></script>
     <script src="{{ asset('js/buscaCEP.js') }}"></script>
     <script src="https://unpkg.com/imask"></script>

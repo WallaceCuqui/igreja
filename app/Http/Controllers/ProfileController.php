@@ -31,6 +31,7 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'documento' => 'nullable|string|max:20',
+            'sem_cnpj' => 'nullable|boolean',
             'nome_fantasia' => 'nullable|string|max:255',
             'genero' => 'nullable|string|max:20',
             'data_nascimento' => 'nullable|date',
@@ -42,9 +43,30 @@ class ProfileController extends Controller
             'cidade' => 'nullable|string|max:255',
             'estado' => 'nullable|string|max:2',
             'telefone' => 'nullable|string|max:20',
-            'foto' => 'nullable|image|max:2048', // até 2MB
+            'foto' => 'nullable|image|max:2048',
             'remover_foto' => 'nullable|boolean',
         ]);
+
+        $dados = $request->only([
+            'documento', 'nome_fantasia', 'genero', 'data_nascimento',
+            'cep', 'endereco', 'numero', 'complemento',
+            'bairro', 'cidade', 'estado', 'telefone'
+        ]);
+
+        // Se marcou "sem CNPJ", força documento = null
+        if ($request->boolean('sem_cnpj')) {
+            $dados['documento'] = null;
+        }
+
+        // 🔹 Define tipo do usuário automaticamente
+        $documento = preg_replace('/\D/', '', $request->documento ?? '');
+        if ($request->boolean('sem_cnpj') || (strlen($documento) === 14)) {
+            $user->type = 'igreja';
+        } else {
+            $user->type = 'membro';
+        }
+
+        $user->save();
 
         // Atualiza nome
         $user->update(['name' => $request->name]);

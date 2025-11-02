@@ -32,7 +32,7 @@ php artisan queue:work
 
 ==== OBSERVAÇÕES ======
 
-# 
+# Corrigir a Buscar da Igreja no Profile
 
 
 

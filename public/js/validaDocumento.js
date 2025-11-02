@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const input = document.querySelector("#documento");
+    const semCnpjCheckbox = document.querySelector("#sem_cnpj");
+
     if (!input) return;
 
     // Mensagem de erro
@@ -13,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const campoDataNascimento = document.querySelector(
         "#campo-data-nascimento"
     );
+    const campoIgreja = document.querySelector("#campo-igreja");
 
     // Funções de validação
     function validaCPF(cpf) {
@@ -54,23 +57,31 @@ document.addEventListener("DOMContentLoaded", () => {
         return resultado == digitos.charAt(1);
     }
 
+    if (semCnpjCheckbox && semCnpjCheckbox.checked) {
+        input.disabled = true;
+        input.placeholder = "Sem CNPJ";
+    }
+
     // Função unificada para validar e mostrar/ocultar campos
     function atualizarCamposDocumento() {
+        const semCnpj = semCnpjCheckbox && semCnpjCheckbox.checked;
         const valor = input.value.replace(/\D/g, "");
         errorMsg.textContent = "";
 
         // Validação
         if (!valor) return;
-        if (valor.length === 11 && !validaCPF(valor)) {
-            errorMsg.textContent = "CPF inválido.";
-        } else if (valor.length === 14 && !validaCNPJ(valor)) {
-            errorMsg.textContent = "CNPJ inválido.";
-        } else if (![11, 14].includes(valor.length)) {
-            errorMsg.textContent = "Informe um CPF ou CNPJ válido.";
+        if (!semCnpj) {
+            if (valor.length === 11 && !validaCPF(valor)) {
+                errorMsg.textContent = "CPF inválido.";
+            } else if (valor.length === 14 && !validaCNPJ(valor)) {
+                errorMsg.textContent = "CNPJ inválido.";
+            } else if (![11, 14].includes(valor.length)) {
+                errorMsg.textContent = "Informe um CPF ou CNPJ válido.";
+            }
         }
 
         // Mostrar/ocultar campos
-        const isCNPJ = valor.length === 14;
+        const isCNPJ = valor.length === 14 && !semCnpj;
 
         if (campoNomeFantasia) {
             campoNomeFantasia.style.display = isCNPJ ? "block" : "none";
@@ -95,6 +106,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (dataInput) dataInput.value = "";
             }
         }
+
+        if (campoIgreja) {
+            campoIgreja.style.display = isCNPJ ? "none" : "block";
+            if (isCNPJ) {
+                const igrejaInput =
+                    campoIgreja.querySelector("input[type='text']");
+                const igrejaHidden = campoIgreja.querySelector(
+                    "input[type='hidden']"
+                );
+                if (igrejaInput) igrejaInput.value = "";
+                if (igrejaHidden) igrejaHidden.value = "";
+            }
+        }
+    }
+
+    if (semCnpjCheckbox) {
+        semCnpjCheckbox.addEventListener("change", () => {
+            if (semCnpjCheckbox.checked) {
+                input.value = "";
+                input.disabled = true;
+                input.placeholder = "Sem CNPJ";
+                errorMsg.textContent = "";
+            } else {
+                input.disabled = false;
+                input.placeholder = "Digite o CNPJ da igreja";
+            }
+            atualizarCamposDocumento();
+        });
     }
 
     // Executa ao carregar, ao digitar e ao sair do campo
