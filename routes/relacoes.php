@@ -5,16 +5,26 @@ use App\Http\Controllers\Profile\RelacoesController;
 
 Route::middleware(['auth'])->group(function () {
     // Página única de relações
-    Route::get('/profile/relacoes', [RelacoesController::class, 'index'])->name('profile.relacoes');
+    Route::get('/profile/relacoes', [RelacoesController::class, 'index'])
+        ->name('profile.relacoes');
 
-    // Cadastrar relacao/dependente
-    Route::post('/profile/relacoes', [RelacoesController::class, 'storeRelacao'])->name('profile.relacoes.store');
+    // 🔍 Busca dinâmica de usuários (para autocomplete)
+    Route::get('/profile/relacoes/buscar', [RelacoesController::class, 'buscarUsuarios'])
+        ->name('profile.relacoes.buscar');
 
-    // Vincular adolescente já cadastrado
-    Route::post('/profile/relacoes/vincular', [RelacoesController::class, 'vincularAdolescente'])->name('profile.relacoes.vincular');
+    // Cadastrar relação/dependente
+    Route::post('/profile/relacoes', [RelacoesController::class, 'storeRelacao'])
+        ->name('profile.relacoes.store');
 
-    // Editar/Remover relacao (opcional)
-    Route::delete('/profile/relacoes/{relacao}', [RelacoesController::class, 'destroyRelacao'])->name('profile.relacoes.destroy');
-    Route::get('/profile/relacoes/{relacao}/edit', [RelacoesController::class, 'editRelacao'])->name('profile.relacoes.edit');
-    Route::patch('/profile/relacoes/{relacao}', [RelacoesController::class, 'updateRelacao'])->name('profile.relacoes.update');
+    // Vincular relação já cadastrada
+    Route::post('/profile/relacoes/vincular', [RelacoesController::class, 'vincularRelacao'])
+        ->name('profile.relacoes.vincular');
+
+    // Editar e remover relação
+    Route::get('/profile/relacoes/{relacao}/edit', [RelacoesController::class, 'editRelacao'])
+        ->name('profile.relacoes.edit');
+    Route::patch('/profile/relacoes/{relacao}', [RelacoesController::class, 'updateRelacao'])
+        ->name('profile.relacoes.update');
+    Route::delete('/profile/relacoes/{relacao}', [RelacoesController::class, 'destroyRelacao'])
+        ->name('profile.relacoes.destroy');
 });

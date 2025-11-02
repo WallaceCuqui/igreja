@@ -8,29 +8,26 @@ use App\Models\User;
 use App\Models\Relacao;
 use App\Models\Ministerio;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Storage;
 
 class RelacoesController extends Controller
 {
-    use AuthorizesRequests;
-
     // Página única
     public function index(Request $request)
     {
         $user = Auth::user();
         $ministerios = Ministerio::all();
         $tiposRelacao = [
-            'filho' => 'Filho(a)',
+            'dependente' => 'Filho / Enteado',
             'conjuge' => 'Cônjuge',
             'pai' => 'Pai',
             'mae' => 'Mãe',
             'avo' => 'Avô(ó)',
             'outro' => 'Outro vínculo',
         ];
+
         $relacoes = $user->relacoes;
-        $usuariosAdolescentes = User::whereHas('detalhesUsuario', function ($q) {
-            $q->whereYear('data_nascimento', '<=', now()->subYears(12)->year);
-        })->where('id', '!=', $user->id)->get();
+        $usuariosRelacoes = User::where('id', '!=', $user->id)->get();
 
         $editRelacao = null;
         if ($request->has('edit')) {
@@ -38,14 +35,30 @@ class RelacoesController extends Controller
         }
 
         return view('profile.relacoes', compact(
-            'user', 'relacoes', 'ministerios', 'tiposRelacao', 'usuariosAdolescentes', 'editRelacao'
+            'user', 'relacoes', 'ministerios', 'tiposRelacao', 'usuariosRelacoes', 'editRelacao'
         ));
+    }
+
+    // Buscar usuários para vincular
+    public function buscarUsuarios(Request $request)
+    {
+        $q = $request->get('q', '');
+        if (strlen($q) < 2) return response()->json([]);
+
+        $users = \App\Models\User::query()
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%");
+            })
+            ->limit(10)
+            ->get(['id', 'name', 'email']);
+
+        return response()->json($users);
     }
 
 
 
-
-    // Cadastrar relacao/dependente
+    // Cadastrar nova relação (dependente)
     public function storeRelacao(Request $request)
     {
         $user = Auth::user();
@@ -59,21 +72,12 @@ class RelacoesController extends Controller
             'ministerios' => 'array',
         ]);
 
-        $validated['membro_id'] = Auth::id();
+        $validated['membro_id'] = $user->id;
 
-        // Upload da foto (se tiver)
+        // Upload da foto
         if ($request->hasFile('foto')) {
-            try {
-                if (!\Storage::disk('public')->exists('relacoes')) {
-                    \Storage::disk('public')->makeDirectory('relacoes');
-                }
-
-                $validated['foto'] = $request->file('foto')->store('relacoes', 'public');
-            } catch (\Exception $e) {
-                return back()->withErrors(['foto' => 'Erro ao salvar a foto: ' . $e->getMessage()]);
-            }
+            $validated['foto'] = $request->file('foto')->store('relacoes', 'public');
         }
-
 
         $relacao = Relacao::create($validated);
 
@@ -82,50 +86,68 @@ class RelacoesController extends Controller
             $relacao->ministerios()->sync($request->ministerios);
         }
 
-        return redirect()->route('profile.relacoes')->with('success', 'Relacão cadastrado com sucesso.');
+        // 🔄 Verifica se o usuário tem cônjuge
+        $conjuge = Relacao::where('membro_id', $user->id)
+            ->where('tipo', 'conjuge')
+            ->first();
+
+        if ($conjuge && $conjuge->relacionado_id) {
+            // cria uma cópia da relação para o cônjuge
+            Relacao::firstOrCreate([
+                'membro_id' => $conjuge->relacionado_id,
+                'nome' => $relacao->nome,
+                'data_nascimento' => $relacao->data_nascimento,
+                'sexo' => $relacao->sexo,
+                'tipo' => $relacao->tipo,
+                'foto' => $relacao->foto,
+            ]);
+        }
+
+        return redirect()->route('profile.relacoes')->with('success', 'Relação cadastrada com sucesso.');
     }
 
-    // Vincular adolescente já cadastrado
-    public function vincularAdolescente(Request $request)
+    // Vincular relação já cadastrada (bidirecional)
+    public function vincularRelacao(Request $request)
     {
         $user = Auth::user();
 
         $data = $request->validate([
             'user_id' => 'required|exists:users,id',
+            'tipo' => 'required|string',
         ]);
 
+        // Cria o vínculo (pai → filho)
         Relacao::firstOrCreate([
             'membro_id' => $user->id,
-            'nome' => $data['user_id'], // Aqui você pode vincular de acordo com a lógica que preferir
+            'relacionado_id' => $data['user_id'],
+            'tipo' => $data['tipo'],
         ]);
 
-        return redirect()->route('profile.relacoes')->with('success', 'Adolescente vinculado com sucesso.');
+        // Cria o vínculo espelho (filho → pai)
+        Relacao::firstOrCreate([
+            'membro_id' => $data['user_id'],
+            'relacionado_id' => $user->id,
+            'tipo' => $this->tipoEspelho($data['tipo']),
+        ]);
+
+        return redirect()->route('profile.relacoes')->with('success', 'Relações vinculadas com sucesso.');
     }
 
-    // Editar relacao
-    public function editRelacao(Relacao $relacao)
+    // Define o tipo espelho (pai <-> filho)
+    private function tipoEspelho($tipo)
     {
-        $user = Auth::user();
-
-        if ($relacao->membro_id !== $user->id) {
-            abort(403, 'Ação não autorizada.');
-        }
-
-        $ministerios = Ministerio::all();
-        $tiposRelacao = [
-            'filho' => 'Filho(a)',
-            'conjuge' => 'Cônjuge',
-            'pai' => 'Pai',
-            'mae' => 'Mãe',
-            'avo' => 'Avô(ó)',
-            'outro' => 'Outro vínculo',
-        ];
-
-        // Passa a variável $relacao e uma flag $editar
-        return view('profile.relacoes', compact('relacao', 'ministerios', 'tiposRelacao'));
+        return match ($tipo) {
+            'pai' => 'filho',
+            'mae' => 'filho',
+            'filho', 'dependente' => 'pai',
+            'conjuge' => 'conjuge',
+            'avo' => 'neto',
+            'neto' => 'avo',
+            default => 'outro',
+        };
     }
 
-
+    // Atualizar
     public function updateRelacao(Request $request, Relacao $relacao)
     {
         $user = Auth::user();
@@ -138,13 +160,19 @@ class RelacoesController extends Controller
             'nome' => 'required|string|max:255',
             'data_nascimento' => 'nullable|date',
             'sexo' => 'nullable|in:M,F',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('relacoes', 'public');
+        }
 
         $relacao->update($data);
 
-        return redirect()->route('profile.relacoes')->with('success', 'Relacao atualizado com sucesso.');
+        return redirect()->route('profile.relacoes')->with('success', 'Relação atualizada com sucesso.');
     }
 
+    // Deletar
     public function destroyRelacao(Relacao $relacao)
     {
         $user = Auth::user();
@@ -155,7 +183,6 @@ class RelacoesController extends Controller
 
         $relacao->delete();
 
-        return redirect()->route('profile.relacoes')->with('success', 'Relacao removido com sucesso.');
+        return redirect()->route('profile.relacoes')->with('success', 'Relação removida com sucesso.');
     }
-
 }

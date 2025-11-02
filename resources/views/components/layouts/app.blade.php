@@ -18,6 +18,7 @@
     @vite([
         'resources/css/app.css',
         'resources/js/app.js',
+        'resources/js/buscaUsuario.js',
     ])
 </head>
 <body class="font-sans antialiased">
