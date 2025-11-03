@@ -35,6 +35,7 @@ class ProfileController extends Controller
             'nome_fantasia' => 'nullable|string|max:255',
             'genero' => 'nullable|string|max:20',
             'data_nascimento' => 'nullable|date',
+            'igreja_id' => 'nullable|exists:users,id',
             'cep' => 'nullable|string|max:9',
             'endereco' => 'nullable|string|max:255',
             'numero' => 'nullable|string|max:10',
@@ -58,10 +59,17 @@ class ProfileController extends Controller
             $dados['documento'] = null;
         }
 
+        // Se for membro (CPF), define type e vincula a igreja
+        if ($request->filled('documento') && strlen(preg_replace('/\D/', '', $request->documento)) === 11) {
+            $user->type = 'membro';
+            $user->igreja_id = $request->igreja_id;
+        }
+
         // 🔹 Define tipo do usuário automaticamente
         $documento = preg_replace('/\D/', '', $request->documento ?? '');
         if ($request->boolean('sem_cnpj') || (strlen($documento) === 14)) {
             $user->type = 'igreja';
+            $user->igreja_id = null;
         } else {
             $user->type = 'membro';
         }

@@ -131,12 +131,28 @@
         </div>
 
         <!-- Igreja (vinculação) -->
+        @php
+            $igrejaUsuario = $user->igreja; // relação do user com a igreja
+        @endphp
+
         <div id="campo-igreja" class="mt-4">
-            <x-input-label for="igreja_busca" value="Buscar Igreja" />
-            <input id="igreja_busca" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            <input id="igreja_id" type="hidden" name="igreja_id">
+            <x-input-label for="igreja_busca" value="Igreja" />
+            <input 
+                id="igreja_busca" 
+                type="text" 
+                placeholder="Digite o nome da igreja"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                value="{{ old('igreja_busca', $igrejaUsuario->detalhesUsuario->nome_fantasia ?? $igrejaUsuario->name ?? '') }}"
+            >
+            <input 
+                id="igreja_id" 
+                type="hidden" 
+                name="igreja_id" 
+                value="{{ old('igreja_id', $user->igreja_id ?? '') }}"
+            >
             <ul id="lista-igrejas" class="border rounded mt-1 hidden bg-white max-h-60 overflow-auto"></ul>
         </div>
+
 
 
 
@@ -210,12 +226,7 @@
         </div>
     </form>
 
-    <!-- Scripts para validar documentos e buscar endereço pelo CEP -->
-    @routes
-    <script src="{{ Vite::asset('resources/js/buscaIgreja.js') }}"></script>
-
-    <script src="{{ asset('js/validaDocumento.js') }}"></script>
-    <script src="{{ asset('js/buscaCEP.js') }}"></script>
+    <!-- Máscara de input -->
     <script src="https://unpkg.com/imask"></script>
-    <script src="{{ asset('js/mascaras.js') }}"></script>
+
 </section>

@@ -1,11 +1,13 @@
 import Alpine from "alpinejs";
-import { route } from "ziggy-js"; // importação nomeada
+import { route } from "ziggy-js";
 
 window.Alpine = Alpine;
-window.route = route; // expõe globalmente para outros arquivos
+window.route = route;
 
-// Importa outros módulos JS que usam o route diretamente
 import "./notificacao";
 import "./buscaIgreja";
+import "./validaDocumento";
+import "./buscaCEP";
+import "./mascaras";
 
 Alpine.start();
