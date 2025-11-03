@@ -85,13 +85,15 @@
             <x-input-error class="mt-2" :messages="$errors->get('documento')" />
         </div>
 
-        <div class="mt-2 flex items-center">
+        <!-- Checkbox Sem CNPJ -->
+        <div id="campo-sem-cnpj" class="mt-2 flex items-center">
             <input id="sem_cnpj" name="sem_cnpj" type="checkbox" value="1"
                 class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
             <label for="sem_cnpj" class="ml-2 text-sm text-gray-700">
                 A igreja não possui CNPJ
             </label>
         </div>
+
 
 
         <!-- Nome Fantasia -->

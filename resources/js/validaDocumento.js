@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Função unificada para validar e mostrar/ocultar campos
     function atualizarCamposDocumento() {
         const semCnpj = semCnpjCheckbox && semCnpjCheckbox.checked;
+        const semCnpjDiv = document.querySelector("#campo-sem-cnpj");
         const valor = input.value.replace(/\D/g, "");
         errorMsg.textContent = "";
 
@@ -119,6 +120,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (igrejaHidden) igrejaHidden.value = "";
             }
         }
+
+
+        // Ocultar checkbox se for CPF
+        if (semCnpjDiv) {
+            if (valor.length === 11) { // CPF
+                semCnpjDiv.style.display = "none";
+                if (semCnpjCheckbox) semCnpjCheckbox.checked = false;
+            } else { // Mostrar para CNPJ ou vazio
+                semCnpjDiv.style.display = "flex";
+            }
+        }
+
     }
 
     if (semCnpjCheckbox) {

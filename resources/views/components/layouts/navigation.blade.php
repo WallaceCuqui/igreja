@@ -1,29 +1,48 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+    @php
+        $igreja = Auth::user()?->igreja; // relacionamento user->igreja
+    @endphp
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <!-- Logo + Foto do Perfil -->
+                <!-- Logo + Foto do Perfil/Igreja -->
+                @php
+                    $fotoIgreja = $igreja?->detalhesUsuario?->foto;
+                    $fotoUsuario = Auth::user()?->detalhesUsuario?->foto;
+
+                    // Define a foto que será exibida
+                    if ($igreja && $fotoIgreja) {
+                        $fotoParaMostrar = asset('storage/' . $fotoIgreja);
+                        $alt = 'Foto da Igreja';
+                    } elseif (!$igreja && $fotoUsuario) {
+                        $fotoParaMostrar = asset('storage/' . $fotoUsuario);
+                        $alt = 'Foto do Perfil';
+                    } else {
+                        $fotoParaMostrar = null; // sem foto, usar ícone padrão
+                        $alt = 'Foto padrão';
+                    }
+                @endphp
+
                 <div class="shrink-0 flex items-center gap-3">
-                    @if (Auth::user()?->detalhesUsuario?->foto)
-                        <a href="{{ route('dashboard') }}" class="relative">
+                    <a href="{{ route('dashboard') }}" class="relative">
+                        @if ($fotoParaMostrar)
                             <img
-                                src="{{ asset('storage/' . Auth::user()->detalhesUsuario->foto) }}"
-                                alt="Foto de perfil"
+                                src="{{ $fotoParaMostrar }}"
+                                alt="{{ $alt }}"
                                 class="h-9 w-9 rounded-full object-cover border border-gray-300 hover:ring-2 hover:ring-indigo-400 transition duration-200"
                             >
-                        </a>
-                    @else
-                        <!-- Ícone padrão quando não há foto -->
-                        <a href="{{ route('profile.edit') }}" class="relative">
+                        @else
+                            <!-- Ícone padrão -->
                             <div class="h-9 w-9 rounded-full bg-gray-200 flex items-center justify-center border border-gray-300 hover:ring-2 hover:ring-indigo-400 transition duration-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0" />
                                 </svg>
                             </div>
-                        </a>
-                    @endif
+                        @endif
+                    </a>
                 </div>
+
 
 
                 <!-- Navigation Links -->
@@ -102,9 +121,11 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
-                        <x-dropdown-link :href="route('profile.relacoes')">
-                            {{ __('Minhas Relações') }}
-                        </x-dropdown-link>
+                        @if ($igreja)
+                            <x-dropdown-link :href="route('profile.relacoes')">
+                                {{ __('Minhas Relações') }}
+                            </x-dropdown-link>
+                        @endif
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
