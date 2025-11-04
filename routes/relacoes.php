@@ -8,10 +8,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/relacoes', [RelacoesController::class, 'index'])
         ->name('profile.relacoes');
 
-    // 🔍 Busca dinâmica de usuários (para autocomplete)
-    Route::get('/profile/relacoes/buscar', [RelacoesController::class, 'buscarUsuarios'])
-        ->name('profile.relacoes.buscar');
-
     // Cadastrar relação/dependente
     Route::post('/profile/relacoes', [RelacoesController::class, 'storeRelacao'])
         ->name('profile.relacoes.store');

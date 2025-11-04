@@ -148,19 +148,28 @@
 
                 <form method="POST" action="{{ route('profile.relacoes.vincular') }}">
                     @csrf
-                    <input type="hidden" name="membro_id" value="{{ $user->id }}">
+                    @php
+                    $membro_nome = null;
+                    if ($editando && $editando->membro_id) {
+                        $membro = \App\Models\User::find($editando->membro_id);
+                        $membro_nome = $membro?->name;
+                    }
+                    @endphp
+                    <div class="relative">
+                        <x-input-label value="Buscar Membro" />
+                        
+                        <input type="text"
+                            class="busca-dinamica border-gray-300 rounded-md w-full"
+                            placeholder="Digite o nome do membro..."
+                            data-target-input="#membro_id"
+                            data-endpoint="{{ route('membro.busca') }}"
+                            data-results=".resultados-dinamicos"
+                            value="{{ old('membro_id', $membro_nome) }}">
 
-                    <div class="mt-4 relative">
-                        <x-input-label for="busca_relacao" value="Buscar usuário" />
-                        <input id="busca_relacao" type="text"
-                            placeholder="Digite o nome ou e-mail..."
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <input type="hidden" id="membro_id" name="membro_id">
 
-                        <!-- Campo oculto onde o ID real é guardado -->
-                        <input type="hidden" id="user_id" name="user_id">
-
-                        <!-- Resultados dinâmicos -->
-                        <div id="resultados_busca" class="absolute z-10 bg-white border rounded-md w-full shadow-md mt-1"></div>
+                        <div class="resultados-dinamicos absolute bg-white border border-gray-300 rounded-md w-full mt-1 max-h-40 overflow-y-auto shadow-lg z-10"></div>
+                        <x-input-error :messages="$errors->get('membro_id')" />
                     </div>
 
 

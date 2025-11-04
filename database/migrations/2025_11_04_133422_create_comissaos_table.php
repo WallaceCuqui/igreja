@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('ministerio_id')->constrained()->onDelete('cascade');
             $table->foreignId('membro_id')->constrained('users')->onDelete('cascade');
             $table->string('funcao');
+            $table->text('observacoes')->nullable();
             $table->date('data_entrada')->nullable();
             $table->date('data_saida')->nullable();
-            $table->text('observacoes')->nullable();
+            $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
 

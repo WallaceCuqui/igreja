@@ -2,15 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
+
+    /**
+     * Busca dinâmica de membros da igreja autenticada (para autocomplete).
+     */
+    public function buscaMembro(Request $request)
+    {
+        $user = auth()->user();
+
+        Log::info('🔍 [ProfileController@buscaMembro] Requisição recebida', [
+            'userId' => $user?->id,
+            'query' => $request->get('q')
+        ]);
+
+        if (!$user || !$user->isIgreja()) {
+            Log::warning('🚫 [ProfileController@buscaMembro] Usuário não autorizado ou não é igreja', [
+                'userId' => $user?->id
+            ]);
+            return response()->json([]);
+        }
+
+        $query = $request->get('q', '');
+
+        $membros = User::where('igreja_id', $user->id)
+            ->where('name', 'like', "%{$query}%")
+            ->select('id', 'name')
+            ->limit(10)
+            ->get();
+
+        Log::info('✅ [ProfileController@buscaMembro] Membros encontrados', [
+            'count' => $membros->count(),
+            'resultados' => $membros->pluck('id', 'name')
+        ]);
+
+        return response()->json($membros);
+    }
+
     /**
      * Exibir formulário de perfil.
      */

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('vice_id')->nullable()->constrained('users')->onDelete('set null');
             $table->date('data_inicio');
             $table->date('data_fim')->nullable();
-            $table->enum('status', ['atual', 'anterior'])->default('atual');
+            $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
 
