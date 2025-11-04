@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::create('ministerios', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
+            $table->text('descricao')->nullable();
+            $table->date('data_fundacao')->nullable();
+            $table->boolean('ativo')->default(true);
+            $table->foreignId('igreja_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }
