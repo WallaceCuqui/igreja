@@ -65,13 +65,22 @@
                             </button>
                         </x-slot>
 
+                        <!-- resources/views/components/menu-ministerios.blade.php -->
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('ministerios.index')">Ministérios</x-dropdown-link>
-                            <x-dropdown-link :href="route('ministerios.liderancas.index')">Lideranças</x-dropdown-link>
-                            <x-dropdown-link :href="route('ministerios.comissoes.index')">Comissões</x-dropdown-link>
-                            <x-dropdown-link :href="route('ministerios.integrantes.index')">Integrantes</x-dropdown-link>
-                            <x-dropdown-link :href="route('ministerios.agendas.index')">Agenda</x-dropdown-link>
+                            <x-dropdown-link :href="route('ministerios.index')">Todos os Ministérios</x-dropdown-link>
+
+                            @if(isset($ministerios) && $ministerios->count())
+                                <div class="border-t my-2"></div>
+
+                                @foreach($ministerios ?? [] as $m)
+                                    <x-dropdown-link :href="route('ministerios.show', $m->id)">{{ $m->nome }}</x-dropdown-link>
+                                @endforeach
+
+                            @else
+                                <div class="mt-2 text-sm text-gray-500 px-3">Nenhum ministério cadastrado</div>
+                            @endif
                         </x-slot>
+
                     </x-dropdown>
 
                 </div>

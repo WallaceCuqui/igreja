@@ -17,6 +17,10 @@ class Ministerio extends Model
         'igreja_id',
     ];
 
+    protected $casts = [
+        'data_fundacao' => 'date', // ou 'datetime' se guardar horário
+    ];
+
     /** 🔗 Relações **/
 
     // A igreja (usuário dono do ministério)
@@ -40,7 +44,13 @@ class Ministerio extends Model
     // Integrantes
     public function integrantes()
     {
-        return $this->hasMany(IntegranteMinisterio::class);
+        return $this->belongsToMany(
+            \App\Models\User::class,       // ajuste para o model de membro
+            'integrante_ministerio',       // nome da tabela pivô
+            'ministerio_id',               // fk neste pivot para Ministerio
+            'membro_id'                      // fk neste pivot para User (ajuste se diferente)
+        )->withPivot('tipo_vinculo')
+        ->withTimestamps();
     }
 
     // Agenda

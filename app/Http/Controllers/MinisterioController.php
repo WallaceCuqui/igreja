@@ -9,6 +9,17 @@ use Exception;
 
 class MinisterioController extends Controller
 {
+
+    // app/Http/Controllers/MinisterioController.php
+
+    public function show(Ministerio $ministerio)
+    {
+        // carregar relacionamentos se precisar: membros, liderancas etc.
+        // $ministerio->load('integrantes.membro', 'liderancas', 'comissoes');
+
+        return view('ministerios.show', compact('ministerio'));
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -51,7 +62,7 @@ class MinisterioController extends Controller
             ]);
         }
 
-        return view('ministerios.index', compact('ministerios', 'editando'));
+        return view('ministerios.cadastro', compact('ministerios', 'editando'));
     }
 
     public function store(Request $request)
@@ -90,7 +101,7 @@ class MinisterioController extends Controller
                 'igreja_id' => $ministerio->igreja_id,
             ]);
 
-            return redirect()->route('ministerios.index')
+            return redirect()->route('ministerios.cadastro')
                 ->with('success', 'Ministério cadastrado com sucesso!');
 
         } catch (Exception $e) {
@@ -134,7 +145,7 @@ class MinisterioController extends Controller
             'id' => $ministerio->id,
         ]);
 
-        return redirect()->route('ministerios.index')
+        return redirect()->route('ministerios.cadastro')
             ->with('success', 'Ministério atualizado com sucesso!');
     }
 
@@ -158,7 +169,7 @@ class MinisterioController extends Controller
                 'id' => $ministerio->id,
             ]);
 
-            return redirect()->route('ministerios.index')
+            return redirect()->route('ministerios.cadastro')
                 ->with('success', 'Ministério excluído com sucesso!');
 
         } catch (Exception $e) {
