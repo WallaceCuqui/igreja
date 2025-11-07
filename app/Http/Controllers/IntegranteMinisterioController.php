@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\Ministerio;
 use App\Models\IntegranteMinisterio;
 use Illuminate\Http\Request;
-
 
 class IntegranteMinisterioController extends Controller
 {
@@ -15,76 +13,123 @@ class IntegranteMinisterioController extends Controller
     {
         $user = auth()->user();
 
-        // checagem de permissão básica (opcional)
-        if (!$user || ! $user->isIgreja() || $ministerio->igreja_id !== $user->id) {
+        if (! $user || ! $user->isIgreja() || $ministerio->igreja_id !== $user->id) {
             abort(403);
         }
 
-        // todos os membros candidatos (ajuste o escopo conforme seu domínio)
-        $membros = User::where('igreja_id', $user->id)
-            ->orderBy('name')
-            ->get();
+        $membros = $user->membros()->orderBy('name')->get();
 
-        // integrantes atuais deste ministério (exemplo: relacionamento many-to-many)
-        // ajuste conforme sua relação: $ministerio->integrantes()->pluck('user_id')->toArray()
-        $integrantes = $ministerio->integrantes()->orderBy('name')->get(); // collection de Users com pivot
+
+        $integrantes = $ministerio->integrantes()->orderBy('name')->get();
         $integrantesAtuais = $integrantes->pluck('id')->toArray();
 
-        $vinculosAtuais = $integrantes->mapWithKeys(function ($item) {
-            return [$item->id => ($item->pivot->tipo_vinculo ?? null)];
+        $statusAtuais = $integrantes->mapWithKeys(function ($item) {
+            return [$item->id => ($item->pivot->status ?? null)];
         })->toArray();
-
 
         return view('ministerios.integrantes', compact(
             'ministerio',
             'membros',
             'integrantesAtuais',
-            'vinculosAtuais'
+            'statusAtuais'
         ));
-
     }
 
-    public function store(Request $request, Ministerio $ministerio)
+    public function solicitarEntrada(Ministerio $ministerio)
     {
         $user = auth()->user();
 
-        if (!$user->isIgreja() || $ministerio->igreja_id !== $user->id) {
-            abort(403, 'Acesso negado.');
+        $existe = IntegranteMinisterio::where('ministerio_id', $ministerio->id)
+            ->where('membro_id', $user->id)
+            ->whereNull('data_saida')
+            ->exists();
+
+        if ($existe) {
+            return back()->withErrors('Você já está vinculado a este ministério.');
         }
 
-        $integrantes = $request->input('membros', []);
-        $ministerio->integrantes()->sync($integrantes);
+        $status = $ministerio->politica_ingresso === 'restrito' ? 'pendente' : 'ativo';
 
-        Log::info('✅ [IntegranteMinisterioController@store] Integrantes atualizados com sucesso', [
+        IntegranteMinisterio::create([
             'ministerio_id' => $ministerio->id,
-            'total' => count($integrantes),
+            'membro_id' => $user->id,
+            'status' => $status,
+            'data_entrada' => now(),
         ]);
 
-        return redirect()
-            ->route('ministerios.integrantes', $ministerio->id)
-            ->with('success', 'Integrantes atualizados com sucesso!');
+        return back()->with('success', 'Solicitação enviada com sucesso!');
     }
 
-    public function show(Ministerio $ministerio)
+    public function ativar(Ministerio $ministerio, User $membro)
     {
-        return view('ministerios.show', compact('ministerio'));
+        $user = auth()->user();
+
+        if (! $user->isIgreja() || $ministerio->igreja_id !== $user->id) {
+            abort(403);
+        }
+
+        $integrante = IntegranteMinisterio::where('ministerio_id', $ministerio->id)
+            ->where('membro_id', $membro->id)
+            ->first();
+
+        if (! $integrante) {
+            $integrante = IntegranteMinisterio::create([
+                'ministerio_id' => $ministerio->id,
+                'membro_id' => $membro->id,
+                'status' => 'ativo',
+                'data_entrada' => now(),
+            ]);
+        } else {
+            $integrante->update([
+                'status' => 'ativo',
+                'data_saida' => null,
+            ]);
+        }
+
+        return response()->json(['status' => 'ativo', 'id' => $integrante->id]);
+    }
+
+    public function remover(Ministerio $ministerio, User $membro)
+    {
+        $user = auth()->user();
+
+        if (! $user->isIgreja() || $ministerio->igreja_id !== $user->id) {
+            abort(403);
+        }
+
+        $integrante = IntegranteMinisterio::where('ministerio_id', $ministerio->id)
+            ->where('membro_id', $membro->id)
+            ->first();
+
+        if ($integrante) {
+            $integrante->delete();
+        }
+
+        return response()->json(['status' => 'removido']);
     }
 
     public function update(Request $request, IntegranteMinisterio $integrante)
     {
         $validated = $request->validate([
-            'tipo_vinculo' => 'sometimes|string',
+            'status' => 'sometimes|in:pendente,ativo,inativo',
             'data_saida' => 'nullable|date',
             'observacoes' => 'nullable|string',
         ]);
 
         $integrante->update($validated);
+
         return response()->json($integrante);
     }
 
     public function destroy(IntegranteMinisterio $integrante)
     {
         $integrante->delete();
+
         return response()->json(null, 204);
+    }
+
+    public function show(Ministerio $ministerio)
+    {
+        return view('ministerios.show', compact('ministerio'));
     }
 }

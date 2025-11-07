@@ -107,7 +107,7 @@ class ComissaoController extends Controller
                 'ministerio_id' => $comissao->ministerio_id,
             ]);
 
-            return redirect()->route('ministerios.comissoes.index')
+            return redirect()->route('ministerios.comissoes.index', $ministerio->id)
                 ->with('success', 'Comissão cadastrada com sucesso!');
 
         } catch (Exception $e) {
@@ -119,7 +119,7 @@ class ComissaoController extends Controller
         }
     }
 
-    public function update(Request $request, Comissao $comissao)
+    public function update(Ministerio $ministerio, Comissao $comissao, Request $request)
     {
         $user = auth()->user();
 
@@ -150,7 +150,8 @@ class ComissaoController extends Controller
             'id' => $comissao->id,
         ]);
 
-        return redirect()->route('ministerios.comissoes.index')
+        
+        return redirect()->route('ministerios.comissoes.index', $ministerio->id)
             ->with('success', 'Comissão atualizada com sucesso!');
     }
 
@@ -174,7 +175,7 @@ class ComissaoController extends Controller
                 'id' => $comissao->id,
             ]);
 
-            return redirect()->route('ministerios.comissoes.index')
+            return redirect()->route('ministerios.comissoes.index', $ministerio->id)
                 ->with('success', 'Comissão excluída com sucesso!');
 
         } catch (Exception $e) {

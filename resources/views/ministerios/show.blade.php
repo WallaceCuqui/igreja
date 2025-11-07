@@ -25,11 +25,12 @@
 
             <div class="border-t pt-4">
                 <h3 class="text-lg font-semibold mb-2">Atalhos</h3>
-                <div class="space-x-2">
+                <div>
+                    <x-dropdown-link :href="route('ministerios.agendas.index', $ministerio->id)">Agenda</x-dropdown-link>
+                    <x-dropdown-link :href="route('ministerios.comissoes.index', $ministerio->id)">Comissões</x-dropdown-link>
                     <x-dropdown-link :href="route('ministerios.integrantes.index', $ministerio->id)">Integrantes</x-dropdown-link>
                     <x-dropdown-link :href="route('ministerios.liderancas.index', $ministerio->id)">Lideranças</x-dropdown-link>
-                    <x-dropdown-link :href="route('ministerios.comissoes.index', $ministerio->id)">Comissões</x-dropdown-link>
-                    <x-dropdown-link :href="route('ministerios.agendas.index', $ministerio->id)">Agenda</x-dropdown-link>
+                    
                 </div>
             </div>
         </div>

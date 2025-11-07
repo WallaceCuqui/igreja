@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('ministerio_id')->constrained()->onDelete('cascade');
             $table->foreignId('membro_id')->constrained('users')->onDelete('cascade');
-            $table->enum('tipo_vinculo', ['ativo', 'auxiliar', 'visitante', 'ex-integrante'])->default('ativo');
+            $table->enum('status', ['pendente', 'ativo', 'inativo'])->default('pendente');
             $table->date('data_entrada')->nullable();
             $table->date('data_saida')->nullable();
             $table->text('observacoes')->nullable();

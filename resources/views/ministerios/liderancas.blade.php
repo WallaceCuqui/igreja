@@ -11,6 +11,7 @@
         <div class="bg-white p-6 rounded-lg shadow">
             <h3 class="text-lg font-semibold mb-4">
                 {{ isset($editando) ? 'Editar Liderança' : 'Cadastrar Nova Liderança' }}
+                : <a href="{{ route('ministerios.show', $ministerio->id) }}" class="text-indigo-600">{{ $ministerio->nome }}</a>
             </h3>
 
             <form method="POST"
@@ -35,8 +36,14 @@
                         $lider = \App\Models\User::find($editando->lider_id);
                         $nomeLider = $lider?->name;
                     }
+                    $nomeVice = null;
+                    if($editando && $editando->vice_id) {
+                        $vice = \App\Models\User::find($editando->vice_id);
+                        $nomeVice = $vice?->name;
+                    }
                     @endphp
 
+                    <!-- Campo Buscar Líder -->
                     <div class="relative">
                         <x-input-label value="Buscar Líder" />
                         
@@ -45,28 +52,34 @@
                             placeholder="Digite o nome do líder..."
                             data-target-input="#lider_id"
                             data-endpoint="{{ route('membro.busca') }}"
-                            data-results=".resultados-dinamicos"
-                            value="{{ old('lider_id', $nomeLider) }}"> <!-- preenche o campo -->
+                            data-results="#resultados-lider"
+                            value="{{ old('lider_id', $nomeLider) }}">
 
                         <input type="hidden" id="lider_id" name="lider_id" value="{{ old('lider_id', $editando->lider_id ?? '') }}">
 
-                        <div class="resultados-dinamicos absolute bg-white border border-gray-300 rounded-md w-full mt-1 max-h-40 overflow-y-auto shadow-lg z-10"></div>
+                        <div id="resultados-lider" class="resultados-dinamicos absolute bg-white border border-gray-300 rounded-md w-full mt-1 max-h-40 overflow-y-auto shadow-lg z-10"></div>
                         <x-input-error :messages="$errors->get('lider_id')" />
                     </div>
 
+                    <!-- Campo Buscar Vice -->
+                    <div class="relative">
+                        <x-input-label value="Buscar Vice" />
+                        
+                        <input type="text"
+                            class="busca-dinamica border-gray-300 rounded-md w-full"
+                            placeholder="Digite o nome do vice..."
+                            data-target-input="#vice_id"
+                            data-endpoint="{{ route('membro.busca') }}"
+                            data-results="#resultados-vice"
+                            value="{{ old('vice_id', $nomeVice) }}">
 
-                    <div>
-                        <x-input-label for="vice_id" value="Vice-líder (opcional)" />
-                        <select name="vice_id" id="vice_id" class="w-full border-gray-300 rounded-md mt-1">
-                            <option value="">Nenhum</option>
-                            @foreach($usuarios as $u)
-                                <option value="{{ $u->id }}"
-                                    {{ old('vice_id', $editando->vice_id ?? '') == $u->id ? 'selected' : '' }}>
-                                    {{ $u->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <input type="hidden" id="vice_id" name="vice_id" value="{{ old('vice_id', $editando->vice_id ?? '') }}">
+
+                        <div id="resultados-vice" class="resultados-dinamicos absolute bg-white border border-gray-300 rounded-md w-full mt-1 max-h-40 overflow-y-auto shadow-lg z-10"></div>
+                        <x-input-error :messages="$errors->get('vice_id')" />
                     </div>
+
+
 
                     <div>
                         <x-input-label for="data_inicio" value="Data de Início" />
@@ -95,7 +108,7 @@
                     </x-primary-button>
 
                     @if(isset($editando))
-                        <a href="{{ route('ministerios.liderancas.index') }}" class="text-gray-600 hover:underline">Cancelar</a>
+                        <a href="{{ route('ministerios.liderancas.index', [$ministerio->id, 'edit' => $editando->id]) }}" class="text-gray-600 hover:underline">Cancelar</a>
                     @endif
                 </div>
             </form>
@@ -104,7 +117,7 @@
         {{-- ✅ LISTA DE LIDERANÇAS --}}
         <div class="bg-white p-6 rounded-lg shadow">
             <h3 class="text-lg font-semibold mb-4">
-                Lideranças do Ministério: <span class="text-indigo-600">{{ $ministerio->nome }}</span>
+                Lideranças do Ministério: <a href="{{ route('ministerios.show', $ministerio->id) }}" class="text-indigo-600">{{ $ministerio->nome }}</a>
             </h3>
 
             @if($liderancas->isEmpty())

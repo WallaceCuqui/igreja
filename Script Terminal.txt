@@ -6,7 +6,7 @@ git pull origin main
 # Para enviar as atualizações para o GitHub:
 
 git add .
-git commit -m "Atualizado dia 07/11/25 pc 1"
+git commit -m "Atualizado dia 07/11/25 pc 2"
 git push origin main
 
 
@@ -32,12 +32,10 @@ php artisan queue:work
 
 ==== OBSERVAÇÕES ======
 
-# Arruma as paginas onde o blade Show aponta. Estão com erros.
 
 # Cria os privilégios para os usuário dos ministérios ter acesso.
-# Criar o Filament para os ministérios
 
-# MAQUINA 1 -> Apagar tabela Relacao_Ministerio e depois Ministerio antes de rodar o Migrate
+# MAQUINA 1 -> rodar o Migrate
 
 
 === SEMPRE QUE CRIAR UM BANCO NOVO ======

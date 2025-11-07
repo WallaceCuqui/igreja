@@ -33,6 +33,20 @@
                 </div>
 
                 <div class="mb-4">
+                    <x-input-label for="politica_ingresso" value="Tipo de Ingresso" />
+                    <select name="politica_ingresso" id="politica_ingresso" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                        <option value="aberto" {{ old('politica_ingresso', $editando->politica_ingresso ?? '') === 'aberto' ? 'selected' : '' }}>
+                            Aberto (qualquer membro pode entrar)
+                        </option>
+                        <option value="restrito" {{ old('politica_ingresso', $editando->politica_ingresso ?? '') === 'restrito' ? 'selected' : '' }}>
+                            Restrito (requer aprovação dos líderes)
+                        </option>
+                    </select>
+                    <x-input-error :messages="$errors->get('politica_ingresso')" />
+                </div>
+
+
+                <div class="mb-4">
                     <x-input-label for="data_fundacao" value="Data de Fundação" />
                     <x-text-input id="data_fundacao" name="data_fundacao" type="date"
                         value="{{ old('data_fundacao', $editando->data_fundacao ?? '') }}" class="block w-full mt-1" />
@@ -73,8 +87,13 @@
                 <tbody>
                     @forelse ($ministerios as $ministerio)
                         <tr class="border-t">
-                            <td class="px-4 py-2">{{ $ministerio->nome }}</td>
+                            <td class="px-4 py-2">
+                                <a href="{{ route('ministerios.show', $ministerio->id) }}" class="text-indigo-600">{{ $ministerio->nome }}</a>
+                            </td>
                             <td class="px-4 py-2">{{ $ministerio->descricao }}</td>
+                            <td class="px-4 py-2">
+                                {{ $ministerio->politica_ingresso === 'restrito' ? 'Restrito' : 'Aberto' }}
+                            </td>
                             <td class="px-4 py-2">
                                 {{ $ministerio->ativo ? 'Sim' : 'Não' }}
                             </td>

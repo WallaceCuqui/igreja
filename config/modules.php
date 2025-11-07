@@ -7,5 +7,8 @@ return [
         'audits' => 'Auditoria',
         'protocolos' => 'Protocolos',
         'notificacoes' => 'Notificações',
+        'ministerios' => 'Ministérios',
+        'liderancas' => 'Lideranças',
+        'comissoes' => 'Comissões',
     ],
 ];

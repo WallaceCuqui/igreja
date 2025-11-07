@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->text('descricao')->nullable();
+            $table->enum('politica_ingresso', ['aberto', 'restrito'])
+                ->default('restrito');
             $table->date('data_fundacao')->nullable();
             $table->boolean('ativo')->default(true);
             $table->foreignId('igreja_id')->nullable()->constrained('users')->cascadeOnDelete();

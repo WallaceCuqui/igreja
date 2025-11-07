@@ -74,11 +74,11 @@ class LiderancaController extends Controller
 
         Lideranca::updateOrCreate(['id' => $request->id], $validated);
 
-        return redirect()->route('ministerios.liderancas.index')
+        return redirect()->route('ministerios.liderancas.index', $ministerio->id)
             ->with('success', 'Liderança cadastrada com sucesso!');
     }
 
-    public function update(Request $request, Lideranca $lideranca)
+    public function update(Ministerio $ministerio, Lideranca $lideranca, Request $request)
     {
         $user = auth()->user();
 
@@ -100,7 +100,7 @@ class LiderancaController extends Controller
 
         $lideranca->update($validated);
 
-        return redirect()->route('ministerios.liderancas.index')
+        return redirect()->route('ministerios.liderancas.index', $ministerio->id)
             ->with('success', 'Liderança atualizada com sucesso!');
     }
 
@@ -117,7 +117,7 @@ class LiderancaController extends Controller
 
         $lideranca->delete();
 
-        return redirect()->route('ministerios.liderancas.index')
+        return redirect()->route('ministerios.liderancas.index', $ministerio->id)
             ->with('success', 'Liderança excluída com sucesso!');
     }
 }

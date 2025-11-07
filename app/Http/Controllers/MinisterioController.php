@@ -90,7 +90,9 @@ class MinisterioController extends Controller
                 'descricao' => 'nullable|string',
                 'data_fundacao' => 'nullable|date',
                 'ativo' => 'boolean',
+                'politica_ingresso' => 'required|in:aberto,restrito',
             ]);
+
 
             $validated['igreja_id'] = $user->id;
 
@@ -135,6 +137,7 @@ class MinisterioController extends Controller
             'descricao' => 'nullable|string',
             'data_fundacao' => 'nullable|date',
             'ativo' => 'nullable|boolean',
+            'politica_ingresso' => 'required|in:aberto,restrito',
         ]);
 
         $validated['ativo'] = $request->has('ativo');

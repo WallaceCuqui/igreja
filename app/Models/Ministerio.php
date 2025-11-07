@@ -12,6 +12,7 @@ class Ministerio extends Model
     protected $fillable = [
         'nome',
         'descricao',
+        'politica_ingresso',
         'data_fundacao',
         'ativo',
         'igreja_id',
@@ -49,7 +50,7 @@ class Ministerio extends Model
             'integrante_ministerio',       // nome da tabela pivô
             'ministerio_id',               // fk neste pivot para Ministerio
             'membro_id'                      // fk neste pivot para User (ajuste se diferente)
-        )->withPivot('tipo_vinculo')
+        )->withPivot('status')
         ->withTimestamps();
     }
 

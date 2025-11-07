@@ -36,6 +36,10 @@ Route::middleware(['auth'])->prefix('ministerios')->name('ministerios.')->group(
             Route::prefix('integrantes')->name('integrantes.')->group(function () {
                 Route::get('/', [IntegranteMinisterioController::class, 'index'])->name('index');
                 Route::post('/', [IntegranteMinisterioController::class, 'store'])->name('store');
+                Route::put('/{integrante}', [IntegranteMinisterioController::class, 'update'])->whereNumber('integrante')->name('update');
+
+                Route::post('{membro}/ativar', [IntegranteMinisterioController::class, 'ativar'])->name('ativar');
+                Route::delete('{membro}/remover', [IntegranteMinisterioController::class, 'remover'])->name('remover');
             });
 
             // Lideranças do ministério

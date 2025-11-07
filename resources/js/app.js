@@ -9,5 +9,6 @@ import "./buscaIgreja";
 import "./validaDocumento";
 import "./buscaCEP";
 import "./mascaras";
+import "./integrantes";
 
 Alpine.start();

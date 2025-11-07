@@ -14,7 +14,7 @@ class IntegranteMinisterio extends Model
     protected $fillable = [
         'ministerio_id',
         'membro_id',
-        'tipo_vinculo',
+        'status',
         'data_entrada',
         'data_saida',
         'observacoes',

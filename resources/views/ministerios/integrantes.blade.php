@@ -1,7 +1,8 @@
-<x-layouts.app title="Integrantes dos Ministérios">
+<x-layouts.app title="Integrantes do Ministério: {{ $ministerio->nome }}">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Integrantes do Ministério: ') . $ministerio->nome }}
+            Integrantes do Ministério:
+            <a href="{{ route('ministerios.show', $ministerio->id) }}" class="text-indigo-600">{{ $ministerio->nome }}</a>
         </h2>
     </x-slot>
 
@@ -14,11 +15,8 @@
 
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
             <p class="text-gray-700 mb-4">
-                Selecione os membros que fazem parte deste ministério.
+                Selecione os membros que fazem parte deste ministério e defina o status de participação.
             </p>
-
-            <form method="POST" action="{{ route('ministerios.integrantes.store', $ministerio->id) }}">
-                @csrf
 
                 <div class="mb-4">
                     <x-input-label for="filtro" value="Filtrar membros" />
@@ -33,42 +31,31 @@
                             <tr>
                                 <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Selecionar</th>
                                 <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Nome</th>
-                                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Tipo de Vínculo</th>
+                                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600">Status</th>
                             </tr>
                         </thead>
                         <tbody id="tabela-membros" class="divide-y divide-gray-100">
                             @foreach ($membros as $m)
                                 @php
-                                    // $integrantesAtuais = array de ids; $vinculosAtuais = [id => tipo_vinculo]
                                     $checked = in_array($m->id, $integrantesAtuais ?? []) ? 'checked' : '';
-                                    $tipoAtual = $vinculosAtuais[$m->id] ?? old("tipo_vinculo.$m->id", 'ativo');
+                                    $statusAtual = $statusAtuais[$m->id] ?? old("status.$m->id", 'ativo');
                                 @endphp
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-2 text-center">
-                                        <input type="checkbox" name="membros[]" value="{{ $m->id }}" {{ $checked }}
-                                            class="rounded border-gray-300">
-                                    </td>
                                     <td class="px-4 py-2">{{ $m->name }}</td>
-                                    <td class="px-4 py-2">
-                                        <select name="tipo_vinculo[{{ $m->id }}]" class="border-gray-300 rounded-md text-sm">
-                                            <option value="ativo" {{ $tipoAtual === 'ativo' ? 'selected' : '' }}>Ativo</option>
-                                            <option value="auxiliar" {{ $tipoAtual === 'auxiliar' ? 'selected' : '' }}>Auxiliar</option>
-                                            <option value="visitante" {{ $tipoAtual === 'visitante' ? 'selected' : '' }}>Visitante</option>
-                                            <option value="ex-integrante" {{ $tipoAtual === 'ex-integrante' ? 'selected' : '' }}>Ex-Integrante</option>
-                                        </select>
+                                    <td class="px-4 py-2 text-center">
+                                        <input type="checkbox"
+                                            class="status-toggle"
+                                            data-url-ativar="{{ route('ministerios.integrantes.ativar', [$ministerio->id, $m->id]) }}"
+                                            data-url-remover="{{ route('ministerios.integrantes.remover', [$ministerio->id, $m->id]) }}"
+                                            {{ ($statusAtuais[$m->id] ?? '') === 'ativo' ? 'checked' : '' }}
                                     </td>
+
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
 
-                <div class="mt-6 flex justify-end">
-                    <x-primary-button>
-                        {{ __('Salvar Alterações') }}
-                    </x-primary-button>
-                </div>
-            </form>
         </div>
     </div>
 
