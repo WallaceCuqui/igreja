@@ -32,11 +32,11 @@ class ComissaoController extends Controller
             ->orderByDesc('data_entrada')
             ->get();
 
-        $ministerios = Ministerio::where('igreja_id', $user->id)->orderBy('nome')->get();
+        $ministerio = Ministerio::where('igreja_id', $user->id)->orderBy('nome')->first();
         $membros = User::orderBy('name')->get();
 
         $editando = null;
-        if ($request->has('edit')) {
+        if ($request->filled('edit') && is_numeric($request->get('edit'))) {
             $editando = Comissao::find($request->get('edit'));
 
             // ⚠️ Só pode editar se for da igreja logada
@@ -54,7 +54,12 @@ class ComissaoController extends Controller
             ]);
         }
 
-        return view('ministerios.comissoes', compact('comissoes', 'ministerios', 'membros', 'editando'));
+        return view('ministerios.comissoes', compact(
+            'ministerio',
+            'comissoes',
+            'membros',
+            'editando'
+        ));
     }
 
     public function store(Request $request)

@@ -14,27 +14,21 @@
                     {{ $editando ? 'Editar Comissão' : 'Cadastrar Nova Comissão' }}
                 </h3>
 
-                <form
-                    method="POST"
-                    action="{{ $editando ? route('ministerios.comissoes.update', $editando) : route('ministerios.comissoes.store') }}"
-                    class="space-y-4"
-                >
+
+                <form method="POST"
+                    action="{{ isset($editando)
+                        ? route('ministerios.comissoes.update', [$ministerio->id, $editando->id])
+                        : route('ministerios.comissoes.store', $ministerio->id) }}">
+
                     @csrf
+
+                    <input type="hidden" name="ministerio_id" value="{{ $ministerio->id }}">
+
+
                     @if($editando)
                         @method('PUT')
                     @endif
 
-                    <div>
-                        <x-input-label for="ministerio_id" value="Ministério" />
-                        <select name="ministerio_id" id="ministerio_id" class="border-gray-300 rounded-md w-full">
-                            @foreach($ministerios as $ministerio)
-                                <option value="{{ $ministerio->id }}" {{ old('ministerio_id', $editando?->ministerio_id) == $ministerio->id ? 'selected' : '' }}>
-                                    {{ $ministerio->nome }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <x-input-error :messages="$errors->get('ministerio_id')" />
-                    </div>
 
                     @php
                     $membro_nome = null;

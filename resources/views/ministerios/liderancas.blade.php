@@ -14,25 +14,20 @@
             </h3>
 
             <form method="POST"
-                action="{{ isset($editando) ? route('ministerios.liderancas.update', $editando) : route('ministerios.liderancas.store') }}">
+                action="{{ isset($editando)
+                    ? route('ministerios.liderancas.update', [$ministerio->id, $editando->id])
+                    : route('ministerios.liderancas.store', $ministerio->id) }}">
+
+
                 @csrf
+
+                <input type="hidden" name="ministerio_id" value="{{ $ministerio->id }}">
+
                 @if(isset($editando))
                     @method('PUT')
                 @endif
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <x-input-label for="ministerio_id" value="Ministério" />
-                        <select name="ministerio_id" id="ministerio_id" class="w-full border-gray-300 rounded-md mt-1">
-                            <option value="">Selecione...</option>
-                            @foreach($ministerios as $m)
-                                <option value="{{ $m->id }}"
-                                    {{ old('ministerio_id', $editando->ministerio_id ?? '') == $m->id ? 'selected' : '' }}>
-                                    {{ $m->nome }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
 
                     @php
                     $nomeLider = null;
@@ -108,56 +103,58 @@
 
         {{-- ✅ LISTA DE LIDERANÇAS --}}
         <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-lg font-semibold mb-4">Lista de Lideranças</h3>
+            <h3 class="text-lg font-semibold mb-4">
+                Lideranças do Ministério: <span class="text-indigo-600">{{ $ministerio->nome }}</span>
+            </h3>
 
-            <table class="min-w-full border-collapse">
-                <thead>
-                    <tr class="bg-gray-100 text-left">
-                        <th class="px-4 py-2">Ministério</th>
-                        <th class="px-4 py-2">Líder</th>
-                        <th class="px-4 py-2">Vice</th>
-                        <th class="px-4 py-2">Período</th>
-                        <th class="px-4 py-2">Status</th>
-                        <th class="px-4 py-2 text-right">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($liderancas as $lideranca)
-                        <tr class="border-t">
-                            <td class="px-4 py-2">{{ $lideranca->ministerio->nome }}</td>
-                            <td class="px-4 py-2">{{ $lideranca->lider->name }}</td>
-                            <td class="px-4 py-2">{{ $lideranca->vice->name ?? '-' }}</td>
-                            <td class="px-4 py-2">
-                                {{ \Carbon\Carbon::parse($lideranca->data_inicio)->format('d/m/Y') }}
-                                -
-                                {{ $lideranca->data_fim ? \Carbon\Carbon::parse($lideranca->data_fim)->format('d/m/Y') : 'Atualmente' }}
-                            </td><td class="px-4 py-2">
-                                @if($lideranca->ativo)
-                                    <span class="text-green-600 font-semibold">Ativo</span>
-                                @else
-                                    <span class="text-red-500 font-semibold">Inativo</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-2 text-right space-x-2">
-                                <a href="{{ route('ministerios.liderancas.index', ['edit' => $lideranca->id]) }}">
-                                    <x-secondary-button>Editar</x-secondary-button>
-                                </a>
-                                <form method="POST" action="{{ route('ministerios.liderancas.destroy', $lideranca) }}" class="inline" onsubmit="return confirm('Tem certeza que deseja excluir esta liderança?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <x-danger-button>Excluir</x-danger-button>
-                                </form>
-                            </td>
+            @if($liderancas->isEmpty())
+                <p class="text-gray-500">Nenhuma liderança cadastrada para este ministério.</p>
+            @else
+                <table class="min-w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-left">
+                            <th class="px-4 py-2">Líder</th>
+                            <th class="px-4 py-2">Vice</th>
+                            <th class="px-4 py-2">Período</th>
+                            <th class="px-4 py-2">Status</th>
+                            <th class="px-4 py-2 text-right">Ações</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-4 py-4 text-center text-gray-500">
-                                Nenhuma liderança cadastrada.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($liderancas as $lideranca)
+                            <tr class="border-t">
+                                <td class="px-4 py-2">{{ $lideranca->lider->name }}</td>
+                                <td class="px-4 py-2">{{ $lideranca->vice->name ?? '-' }}</td>
+                                <td class="px-4 py-2">
+                                    {{ \Carbon\Carbon::parse($lideranca->data_inicio)->format('d/m/Y') }}
+                                    –
+                                    {{ $lideranca->data_fim ? \Carbon\Carbon::parse($lideranca->data_fim)->format('d/m/Y') : 'Atualmente' }}
+                                </td>
+                                <td class="px-4 py-2">
+                                    @if($lideranca->ativo)
+                                        <span class="text-green-600 font-semibold">Ativo</span>
+                                    @else
+                                        <span class="text-red-500 font-semibold">Inativo</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-2 text-right space-x-2">
+                                    <a href="{{ route('ministerios.liderancas.index', [$ministerio->id, 'edit' => $lideranca->id]) }}">
+                                        <x-secondary-button>Editar</x-secondary-button>
+                                    </a>
+                                    <form method="POST"
+                                        action="{{ route('ministerios.liderancas.destroy', [$ministerio->id, $lideranca->id]) }}"
+                                        class="inline"
+                                        onsubmit="return confirm('Tem certeza que deseja excluir esta liderança?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-danger-button>Excluir</x-danger-button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
-    </div>
+
 </x-app-layout>

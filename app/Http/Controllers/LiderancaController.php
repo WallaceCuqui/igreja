@@ -10,52 +10,38 @@ use Illuminate\Support\Facades\Log;
 
 class LiderancaController extends Controller
 {
-    public function index(Request $request)
+    public function index(Ministerio $ministerio, Request $request)
     {
         $user = auth()->user();
 
-        // 🔒 Apenas igrejas podem acessar essa tela
-        if (! $user->isIgreja()) {
-            abort(403, 'Apenas igrejas podem acessar a gestão de lideranças.');
+        if (! $user->isIgreja() || $ministerio->igreja_id !== $user->id) {
+            abort(403, 'Acesso não autorizado ao ministério.');
         }
 
-        // Busca ministérios da igreja logada
-        $ministerios = Ministerio::where('igreja_id', $user->id)
-            ->orderBy('nome')
-            ->get();
-
-        // 🔒 Se a igreja não tem ministérios, não faz sentido mostrar a tela
-        if ($ministerios->isEmpty()) {
-            return redirect()->route('dashboard')
-                ->with('warning', 'Nenhum ministério vinculado à sua igreja. Cadastre um ministério primeiro.');
-        }
-
-        Log::info('👤 [LiderancaController@index] Acessando lista de lideranças.', ['igreja_id' => $user->id]);
-
-        // Carrega apenas as lideranças da igreja logada
-        $liderancas = Lideranca::with(['ministerio', 'lider', 'vice'])
-            ->whereHas('ministerio', function ($q) use ($user) {
-                $q->where('igreja_id', $user->id);
-            })
+        $liderancas = Lideranca::with(['lider', 'vice'])
+            ->where('ministerio_id', $ministerio->id)
             ->orderByDesc('data_inicio')
             ->get();
 
-        $usuarios = User::orderBy('name')->get();
+        $usuarios = User::where('igreja_id', $user->id)->orderBy('name')->get();
 
         $editando = null;
-        if ($request->has('edit')) {
+        if ($request->filled('edit') && is_numeric($request->get('edit'))) {
             $editando = Lideranca::find($request->get('edit'));
 
-            // 🔒 Protege o modo de edição também
-            if (! $editando || $editando->ministerio->igreja_id !== $user->id) {
+            if (! $editando || $editando->ministerio_id !== $ministerio->id) {
                 abort(403, 'Você não tem permissão para editar essa liderança.');
             }
-
-            Log::info('✏️ [LiderancaController@index] Editando liderança.', ['id' => $editando->id]);
         }
 
-        return view('ministerios.liderancas', compact('liderancas', 'ministerios', 'usuarios', 'editando'));
+        return view('ministerios.liderancas', compact(
+            'ministerio',
+            'liderancas',
+            'usuarios',
+            'editando'
+        ));
     }
+
 
 
     public function store(Request $request)
