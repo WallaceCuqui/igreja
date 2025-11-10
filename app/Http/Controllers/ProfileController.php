@@ -21,11 +21,6 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        Log::info('🔍 [ProfileController@buscaMembro] Requisição recebida', [
-            'userId' => $user?->id,
-            'query' => $request->get('q')
-        ]);
-
         if (!$user || !$user->isIgreja()) {
             Log::warning('🚫 [ProfileController@buscaMembro] Usuário não autorizado ou não é igreja', [
                 'userId' => $user?->id
@@ -34,20 +29,24 @@ class ProfileController extends Controller
         }
 
         $query = $request->get('q', '');
+        $ministerioId = $request->get('ministerio_id'); // 🔹 novo parâmetro opcional
 
         $membros = User::where('igreja_id', $user->id)
+            ->when($ministerioId, function ($q) use ($ministerioId) {
+                $q->whereNotIn('id', function ($sub) use ($ministerioId) {
+                    $sub->select('membro_id')
+                        ->from('integrante_ministerio')
+                        ->where('ministerio_id', $ministerioId);
+                });
+            })
             ->where('name', 'like', "%{$query}%")
             ->select('id', 'name')
             ->limit(10)
             ->get();
-
-        Log::info('✅ [ProfileController@buscaMembro] Membros encontrados', [
-            'count' => $membros->count(),
-            'resultados' => $membros->pluck('id', 'name')
-        ]);
-
+            
         return response()->json($membros);
     }
+
 
     /**
      * Exibir formulário de perfil.

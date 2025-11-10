@@ -2,60 +2,90 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Log;
+use App\Models\Ministerio;
 use App\Models\Agenda;
 use Illuminate\Http\Request;
 
 class AgendaController extends Controller
 {
-    public function index()
+    /**
+     * Lista as agendas e exibe o formulário de criação/edição.
+     */
+    public function index(Ministerio $ministerio, Request $request)
     {
-        Log::info('Acessou a lista de agendas dos ministérios.');
-        return view('ministerios.agendas');
+        $editando = null;
+
+        if ($request->has('edit')) {
+            $editando = Agenda::where('ministerio_id', $ministerio->id)
+                ->find($request->get('edit'));
+        }
+
+        $agendas = Agenda::where('ministerio_id', $ministerio->id)
+            ->orderBy('data_inicio', 'desc')
+            ->get();
+
+        return view('ministerios.agendas', compact('ministerio', 'agendas', 'editando'));
     }
 
-    public function store(Request $request)
+    /**
+     * Armazena um novo evento.
+     */
+    public function store(Request $request, Ministerio $ministerio)
     {
         $validated = $request->validate([
-            'ministerio_id' => 'required|exists:ministerios,id',
             'titulo' => 'required|string|max:255',
             'descricao' => 'nullable|string',
             'local' => 'nullable|string|max:255',
             'data_inicio' => 'required|date',
-            'data_fim' => 'nullable|date',
-            'responsavel_id' => 'nullable|exists:users,id',
-            'status' => 'required|string',
+            'data_fim' => 'nullable|date|after_or_equal:data_inicio',
+            'status' => 'required|in:planejado,realizado,cancelado',
             'tipo_evento' => 'nullable|string|max:255',
         ]);
 
-        $agenda = Agenda::create($validated);
-        return response()->json($agenda, 201);
+        $validated['ministerio_id'] = $ministerio->id;
+
+        Agenda::create($validated);
+
+        return redirect()
+            ->route('ministerios.agendas.index', $ministerio->id)
+            ->with('success', 'Evento criado com sucesso!');
     }
 
-    public function show(Agenda $agenda)
-    {
-        return response()->json($agenda->load(['ministerio', 'responsavel']));
-    }
-
-    public function update(Request $request, Agenda $agenda)
+    /**
+     * Atualiza um evento existente.
+     */
+    public function update(Request $request, Ministerio $ministerio, Agenda $agenda)
     {
         $validated = $request->validate([
-            'titulo' => 'sometimes|string|max:255',
+            'titulo' => 'required|string|max:255',
             'descricao' => 'nullable|string',
             'local' => 'nullable|string|max:255',
-            'data_inicio' => 'sometimes|date',
-            'data_fim' => 'nullable|date',
-            'status' => 'string',
+            'data_inicio' => 'required|date',
+            'data_fim' => 'nullable|date|after_or_equal:data_inicio',
+            'status' => 'required|in:planejado,realizado,cancelado',
             'tipo_evento' => 'nullable|string|max:255',
         ]);
 
         $agenda->update($validated);
-        return response()->json($agenda);
+
+        return redirect()
+            ->route('ministerios.agendas.index', $ministerio->id)
+            ->with('success', 'Evento atualizado com sucesso!');
     }
 
-    public function destroy(Agenda $agenda)
+    /**
+     * Exclui um evento.
+     */
+    public function destroy(Ministerio $ministerio, Agenda $agenda)
     {
+        if ($agenda->ministerio_id !== $ministerio->id) {
+            abort(403, 'Acesso negado.');
+        }
+
         $agenda->delete();
-        return response()->json(null, 204);
+
+        return redirect()
+            ->route('ministerios.agendas.index', $ministerio->id)
+            ->with('success', 'Evento excluído com sucesso!');
     }
 }

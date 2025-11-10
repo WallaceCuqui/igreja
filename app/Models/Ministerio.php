@@ -37,15 +37,16 @@ class Ministerio extends Model
         return $this->hasMany(Lideranca::class);
     }
 
-    public function lider()
+    public function getLiderAttribute()
     {
-        return $this->belongsTo(User::class, 'lider_id');
+        return $this->liderancas()->first()?->lider;
     }
 
-    public function vice()
+    public function getViceAttribute()
     {
-        return $this->belongsTo(User::class, 'vice_id');
+        return $this->liderancas()->first()?->vice;
     }
+
 
 
     // Comissão
@@ -54,17 +55,19 @@ class Ministerio extends Model
         return $this->hasMany(Comissao::class);
     }
 
-    // Integrantes
+    // Integrantes do ministério (users vinculados)
     public function integrantes()
     {
         return $this->belongsToMany(
-            User::class,
-            'integrante_ministerio',
-            'ministerio_id',
-            'membro_id'
-        )->withPivot('data_entrada', 'data_saida', 'observacoes')
+            \App\Models\User::class,
+            'integrante_ministerio', // nome da tabela pivô
+            'ministerio_id',         // FK para este model
+            'membro_id'              // FK para o model User
+        )->withPivot(['status', 'data_entrada', 'data_saida', 'observacoes'])
         ->withTimestamps();
     }
+
+
 
 
     // Agenda

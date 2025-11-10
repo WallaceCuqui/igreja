@@ -1,4 +1,5 @@
 <?php
+// app/Models/Agenda.php
 
 namespace App\Models;
 
@@ -21,8 +22,12 @@ class Agenda extends Model
         'tipo_evento',
     ];
 
-    /** 🔗 Relações **/
+    protected $casts = [
+        'data_inicio' => 'datetime',
+        'data_fim' => 'datetime',
+    ];
 
+    // 🔗 Relacionamentos
     public function ministerio()
     {
         return $this->belongsTo(Ministerio::class);

@@ -146,8 +146,17 @@
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Vincular Relação Existente (usuário com login)</h3>
 
-                <form method="POST" action="{{ route('profile.relacoes.vincular') }}">
+                <form method="POST"
+                action="{{ isset($editando)
+                    ? route('profile.relacoes.update', $editando->id)
+                    : route('profile.relacoes.vincular') }}">
+
                     @csrf
+
+                    @if(isset($editando))
+                        @method('PUT')
+                    @endif
+
                     @php
                     $membro_nome = null;
                     if ($editando && $editando->membro_id) {
@@ -163,12 +172,12 @@
                             placeholder="Digite o nome do membro..."
                             data-target-input="#membro_id"
                             data-endpoint="{{ route('membro.busca') }}"
-                            data-results=".resultados-dinamicos"
+                            data-results="#resultados-membro"
                             value="{{ old('membro_id', $membro_nome) }}">
 
-                        <input type="hidden" id="membro_id" name="membro_id">
+                        <input type="hidden" id="membro_id" name="membro_id" value="{{ old('membro_id', $editando->membro_id ?? '') }}">
 
-                        <div class="resultados-dinamicos absolute bg-white border border-gray-300 rounded-md w-full mt-1 max-h-40 overflow-y-auto shadow-lg z-10"></div>
+                        <div id="resultados-membro" class="resultados-dinamicos absolute bg-white border border-gray-300 rounded-md w-full mt-1 max-h-40 overflow-y-auto shadow-lg z-10"></div>
                         <x-input-error :messages="$errors->get('membro_id')" />
                     </div>
 

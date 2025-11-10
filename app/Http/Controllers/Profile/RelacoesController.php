@@ -17,27 +17,35 @@ class RelacoesController extends Controller
     {
         $user = Auth::user();
         $ministerios = Ministerio::all();
+
         $tiposRelacao = [
             'dependente' => 'Filho / Enteado',
             'conjuge' => 'Cônjuge',
             'pai' => 'Pai',
             'mae' => 'Mãe',
             'avo' => 'Avô(ó)',
+            'neto' => 'Neto(a)',
             'outro' => 'Outro vínculo',
         ];
 
         $relacoes = $user->relacoes;
         $usuariosRelacoes = User::where('id', '!=', $user->id)->get();
 
-        $editRelacao = null;
+        $editando = null;
         if ($request->has('edit')) {
-            $editRelacao = Relacao::find($request->edit);
+            $editando = Relacao::find($request->edit);
         }
 
         return view('profile.relacoes', compact(
-            'user', 'relacoes', 'ministerios', 'tiposRelacao', 'usuariosRelacoes', 'editRelacao'
+            'user',
+            'relacoes', 
+            'ministerios', 
+            'tiposRelacao', 
+            'usuariosRelacoes', 
+            'editando', // ✅ agora sim, o mesmo nome da view
         ));
     }
+
 
     // Buscar usuários para vincular
     public function buscarUsuarios(Request $request)
@@ -123,29 +131,34 @@ class RelacoesController extends Controller
             'tipo' => $data['tipo'],
         ]);
 
-        // Cria o vínculo espelho (filho → pai)
+        // Cria o vínculo espelho (filho → pai ou mãe)
         Relacao::firstOrCreate([
             'membro_id' => $data['user_id'],
             'relacionado_id' => $user->id,
-            'tipo' => $this->tipoEspelho($data['tipo']),
+            'tipo' => $this->tipoEspelho($data['tipo'], $user->id),
         ]);
+
 
         return redirect()->route('profile.relacoes')->with('success', 'Relações vinculadas com sucesso.');
     }
 
     // Define o tipo espelho (pai <-> filho)
-    private function tipoEspelho($tipo)
+    private function tipoEspelho(string $tipo, int $membroId): string
     {
+        // Tenta buscar o sexo do usuário relacionado
+        $relacionado = \App\Models\User::find($membroId);
+        $sexo = $relacionado?->sexo ?? null; // pode ser 'M', 'F' ou null
+
         return match ($tipo) {
-            'pai' => 'filho',
-            'mae' => 'filho',
-            'filho', 'dependente' => 'pai',
+            'pai', 'mae' => 'dependente',
+            'dependente' => $sexo === 'F' ? 'mae' : 'pai',
             'conjuge' => 'conjuge',
             'avo' => 'neto',
             'neto' => 'avo',
             default => 'outro',
         };
     }
+
 
     // Atualizar
     public function updateRelacao(Request $request, Relacao $relacao)

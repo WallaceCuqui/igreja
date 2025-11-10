@@ -51,13 +51,15 @@
             {{-- 🧑‍🤝‍🧑 Comissões --}}
             <section class="border-t pt-4">
                 <h3 class="text-lg font-semibold mb-3 text-gray-800">Comissões</h3>
+
                 @if($ministerio->comissoes->count())
                     <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
                         @foreach ($ministerio->comissoes as $comissao)
                             <li>
-                                <span class="font-semibold">{{ $comissao->nome }}</span>
-                                @if ($comissao->descricao)
-                                    — <span class="text-gray-600">{{ $comissao->descricao }}</span>
+                                <span class="font-semibold">{{ $comissao->membro?->name ?? '—' }}</span>
+                                — <span class="text-gray-600">{{ ucfirst($comissao->funcao) }}</span>
+                                @if (!$comissao->ativo)
+                                    <span class="text-red-500 text-xs">(Inativo)</span>
                                 @endif
                             </li>
                         @endforeach
@@ -66,6 +68,46 @@
                     <p class="text-gray-500 text-sm">Nenhuma comissão cadastrada.</p>
                 @endif
             </section>
+
+            {{-- ✋ Inscrição no Ministério (visível apenas para membros) --}}
+            @if(Auth::check() && Auth::user()->isMembro())
+                <section class="border-t pt-4">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800">Participação</h3>
+
+                    @php
+                        $integrante = $ministerio->integrantes()
+                            ->where('membro_id', Auth::id())
+                            ->first();
+                    @endphp
+
+                    @if ($integrante)
+                        @if ($integrante->pivot->status === 'ativo')
+                            <p class="text-green-600 text-sm font-medium">
+                                ✅ Você já faz parte deste ministério.
+                            </p>
+                        @elseif ($integrante->pivot->status === 'pendente')
+                            <p class="text-yellow-600 text-sm font-medium">
+                                ⏳ Sua solicitação de participação está pendente de aprovação.
+                            </p>
+                        @elseif ($integrante->pivot->status === 'inativo')
+                            <p class="text-gray-500 text-sm font-medium">
+                                ⚪ Sua participação neste ministério está inativa no momento.
+                            </p>
+                        @endif
+                    @else
+                        <form action="{{ route('ministerios.integrantes.solicitar', $ministerio->id) }}" method="POST">
+                            @csrf
+                            <x-primary-button>
+                                {{ $ministerio->politica_ingresso === 'restrito' ? 'Solicitar participação' : 'Inscrever-se' }}
+                            </x-primary-button>
+                        </form>
+                    @endif
+                </section>
+            @endif
+
+
+
+
 
             @if(Auth::check() && Auth::user()->isIgreja())
                 {{-- 🔗 Atalhos --}}

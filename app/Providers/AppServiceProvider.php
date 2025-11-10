@@ -5,10 +5,12 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event; // ✅ IMPORTANTE
+use Illuminate\Auth\Events\Login;     // ✅ IMPORTANTE
 use App\Models\Ministerio;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use App\Notifications\QueuedVerifyEmail;
-
+use App\Listeners\AtualizarAgendasAposLogin;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,20 +21,28 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // ✅ Envio de e-mail de verificação personalizado (em fila)
         VerifyEmail::toMailUsing(function ($notifiable, $url) {
             return (new QueuedVerifyEmail($url))->toMail($notifiable);
         });
 
-        // View Composer: disponibiliza $ministerios para as views do layout/menu
+        // ✅ Atualiza agendas automaticamente quando um usuário loga
+        Event::listen(Login::class, [AtualizarAgendasAposLogin::class, 'handle']);
+
+        // ✅ View Composer: disponibiliza $ministerios para os layouts e menus
         View::composer(
             [
                 'layouts.app',                    // layout principal
-                'components.layouts.navigation',  // <<< aqui: seu componente de menu
-                'partials.*'                      // caso use partials
+                'components.layouts.navigation',  // componente de menu
+                'partials.*'                      // se usar partials
             ],
             function ($view) {
-                // carregar ministérios (pode ajustar filtro por usuário se precisar)
-                $ministerios = Cache::remember('ministerios_menu_all', 60, fn () => Ministerio::orderBy('nome')->get());
+                $ministerios = Cache::remember(
+                    'ministerios_menu_all',
+                    60,
+                    fn () => Ministerio::orderBy('nome')->get()
+                );
+
                 $view->with('ministerios', $ministerios);
             }
         );

@@ -15,10 +15,8 @@ class MinisterioController extends Controller
     public function show(Ministerio $ministerio)
     {
         $ministerio->load([
-            'lider', 
-            'vice', 
             'comissoes', 
-            'integrantes.membro'
+            'integrantes.membros'
         ]);
 
         return view('ministerios.show', compact('ministerio'));
@@ -156,6 +154,7 @@ class MinisterioController extends Controller
         return redirect()->route('ministerios.cadastro')
             ->with('success', 'Ministério atualizado com sucesso!');
     }
+
 
     public function destroy(Ministerio $ministerio)
     {

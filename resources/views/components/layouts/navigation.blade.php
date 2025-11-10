@@ -1,6 +1,10 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     @php
-        $igreja = Auth::user()?->igreja; // relacionamento user->igreja
+        $user = Auth::user();
+        $igreja = $user?->igreja; // relacionamento user->igreja
+        $isIgreja = $user?->isIgreja();
+        $isMembro = $user?->isMembro();
+        $temIgrejaVinculada = $isMembro && !is_null($user?->igreja_id);
     @endphp
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,7 +58,7 @@
                         Chamado
                     </x-nav-link>
 
-                    @if ($igreja)
+                    @if ($isIgreja || $temIgrejaVinculada)
                         <!-- Menu de Ministérios -->
                         <x-dropdown align="left" width="48">
                             <x-slot name="trigger">

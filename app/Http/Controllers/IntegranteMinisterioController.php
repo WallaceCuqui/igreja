@@ -13,27 +13,28 @@ class IntegranteMinisterioController extends Controller
     {
         $user = auth()->user();
 
+        // Apenas a igreja dona do ministério pode gerenciar
         if (! $user || ! $user->isIgreja() || $ministerio->igreja_id !== $user->id) {
             abort(403);
         }
 
-        $membros = $user->membros()->orderBy('name')->get();
+        // Pega somente os integrantes vinculados a este ministério
+        $integrantes = $ministerio->integrantes()
+            ->orderBy('name')
+            ->get();
 
-
-        $integrantes = $ministerio->integrantes()->orderBy('name')->get();
-        $integrantesAtuais = $integrantes->pluck('id')->toArray();
-
+        // Mapeia status atuais
         $statusAtuais = $integrantes->mapWithKeys(function ($item) {
-            return [$item->id => ($item->pivot->status ?? null)];
+            return [$item->id => $item->pivot->status];
         })->toArray();
 
         return view('ministerios.integrantes', compact(
             'ministerio',
-            'membros',
-            'integrantesAtuais',
+            'integrantes',
             'statusAtuais'
         ));
     }
+
 
     public function solicitarEntrada(Ministerio $ministerio)
     {
@@ -57,8 +58,13 @@ class IntegranteMinisterioController extends Controller
             'data_entrada' => now(),
         ]);
 
-        return back()->with('success', 'Solicitação enviada com sucesso!');
+        $mensagem = $status === 'pendente'
+            ? 'Solicitação enviada com sucesso! Aguarde aprovação da liderança.'
+            : 'Inscrição confirmada! Bem-vindo ao ministério.';
+
+        return back()->with('success', $mensagem);
     }
+
 
     public function ativar(Ministerio $ministerio, User $membro)
     {
