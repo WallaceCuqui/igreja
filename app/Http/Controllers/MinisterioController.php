@@ -14,11 +14,16 @@ class MinisterioController extends Controller
 
     public function show(Ministerio $ministerio)
     {
-        // carregar relacionamentos se precisar: membros, liderancas etc.
-        // $ministerio->load('integrantes.membro', 'liderancas', 'comissoes');
+        $ministerio->load([
+            'lider', 
+            'vice', 
+            'comissoes', 
+            'integrantes.membro'
+        ]);
 
         return view('ministerios.show', compact('ministerio'));
     }
+
 
     public function index(Request $request)
     {

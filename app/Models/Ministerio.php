@@ -10,12 +10,13 @@ class Ministerio extends Model
     use HasFactory;
 
     protected $fillable = [
+        'igreja_id',
         'nome',
         'descricao',
-        'politica_ingresso',
         'data_fundacao',
         'ativo',
-        'igreja_id',
+        'lider_id',
+        'vice_id',
     ];
 
     protected $casts = [
@@ -36,6 +37,17 @@ class Ministerio extends Model
         return $this->hasMany(Lideranca::class);
     }
 
+    public function lider()
+    {
+        return $this->belongsTo(User::class, 'lider_id');
+    }
+
+    public function vice()
+    {
+        return $this->belongsTo(User::class, 'vice_id');
+    }
+
+
     // Comissão
     public function comissoes()
     {
@@ -46,13 +58,14 @@ class Ministerio extends Model
     public function integrantes()
     {
         return $this->belongsToMany(
-            \App\Models\User::class,       // ajuste para o model de membro
-            'integrante_ministerio',       // nome da tabela pivô
-            'ministerio_id',               // fk neste pivot para Ministerio
-            'membro_id'                      // fk neste pivot para User (ajuste se diferente)
-        )->withPivot('status')
+            User::class,
+            'integrante_ministerio',
+            'ministerio_id',
+            'membro_id'
+        )->withPivot('data_entrada', 'data_saida', 'observacoes')
         ->withTimestamps();
     }
+
 
     // Agenda
     public function agendas()

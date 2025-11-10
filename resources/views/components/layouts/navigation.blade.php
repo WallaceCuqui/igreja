@@ -54,34 +54,36 @@
                         Chamado
                     </x-nav-link>
 
-                    <!-- Menu de Ministérios -->
-                    <x-dropdown align="left" width="48">
-                        <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                Ministérios
-                                <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
-                                </svg>
-                            </button>
-                        </x-slot>
+                    @if ($igreja)
+                        <!-- Menu de Ministérios -->
+                        <x-dropdown align="left" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                    Ministérios
+                                    <svg class="ms-2 -me-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
+                                    </svg>
+                                </button>
+                            </x-slot>
 
-                        <!-- resources/views/components/menu-ministerios.blade.php -->
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('ministerios.index')">Todos os Ministérios</x-dropdown-link>
+                            <!-- resources/views/components/menu-ministerios.blade.php -->
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('ministerios.index')">Todos os Ministérios</x-dropdown-link>
 
-                            @if(isset($ministerios) && $ministerios->count())
-                                <div class="border-t my-2"></div>
+                                @if(isset($ministerios) && $ministerios->count())
+                                    <div class="border-t my-2"></div>
 
-                                @foreach($ministerios ?? [] as $m)
-                                    <x-dropdown-link :href="route('ministerios.show', $m->id)">{{ $m->nome }}</x-dropdown-link>
-                                @endforeach
+                                    @foreach($ministerios ?? [] as $m)
+                                        <x-dropdown-link :href="route('ministerios.show', $m->id)">{{ $m->nome }}</x-dropdown-link>
+                                    @endforeach
 
-                            @else
-                                <div class="mt-2 text-sm text-gray-500 px-3">Nenhum ministério cadastrado</div>
-                            @endif
-                        </x-slot>
+                                @else
+                                    <div class="mt-2 text-sm text-gray-500 px-3">Nenhum ministério cadastrado</div>
+                                @endif
+                            </x-slot>
 
-                    </x-dropdown>
+                        </x-dropdown>
+                    @endif
 
                 </div>
             </div>
