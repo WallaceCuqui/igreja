@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\User;
+use App\Models\NotificacaoLidaOcultada;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,18 +29,18 @@ class Notificacao extends Model
     // quem criou (admin)
     public function targetUser()
     {
-        return $this->belongsTo(\App\Models\User::class, 'target_user_id');
+        return $this->belongsTo(User::class, 'target_user_id');
     }
 
     public function creator()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
     
     // pivot lidos/ocultadas
     public function lidasOcultadas()
     {
-        return $this->hasMany(\App\Models\NotificacaoLidaOcultada::class, 'notificacao_id');
+        return $this->hasMany(NotificacaoLidaOcultada::class, 'notificacao_id');
     }
 
 

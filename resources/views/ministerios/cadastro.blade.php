@@ -80,8 +80,9 @@
                     <tr class="bg-gray-100 text-left">
                         <th class="px-4 py-2">Nome</th>
                         <th class="px-4 py-2">Descrição</th>
+                        <th class="px-4 py-2">Tipo</th>
                         <th class="px-4 py-2">Ativo</th>
-                        <th class="px-4 py-2 text-right">Ações</th>
+                        <th class="px-4 py-2 text-right"></th>
                     </tr>
                 </thead>
                 <tbody>

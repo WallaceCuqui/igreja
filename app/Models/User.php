@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\NotificacaoLidaOcultada;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -85,12 +86,12 @@ class User extends Authenticatable implements MustVerifyEmail
     // Nofificações lidas/ocultadas pelo usuário
     public function notificacoesLidas()
     {
-        return $this->hasMany(\App\Models\NotificacaoLidaOcultada::class, 'user_id');
+        return $this->hasMany(NotificacaoLidaOcultada::class, 'user_id');
     }
 
     public function markNotificacaoLida(int $notificacaoId)
     {
-        return \App\Models\NotificacaoLidaOcultada::updateOrCreate(
+        return NotificacaoLidaOcultada::updateOrCreate(
             ['notificacao_id' => $notificacaoId, 'user_id' => $this->id],
             ['lida' => true, 'lida_at' => now()]
         );
@@ -98,7 +99,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hideNotificacao(int $notificacaoId)
     {
-        return \App\Models\NotificacaoLidaOcultada::updateOrCreate(
+        return NotificacaoLidaOcultada::updateOrCreate(
             ['notificacao_id' => $notificacaoId, 'user_id' => $this->id],
             ['ocultada' => true, 'ocultada_at' => now()]
         );

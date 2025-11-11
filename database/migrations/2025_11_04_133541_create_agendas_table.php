@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('local')->nullable();
             $table->datetime('data_inicio');
             $table->datetime('data_fim')->nullable();
-            $table->foreignId('responsavel_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('criado_por')->nullable()->constrained('users')->onDelete('set null');
             $table->enum('status', ['planejado', 'realizado', 'cancelado'])->default('planejado');
             $table->string('tipo_evento')->nullable(); // reunião, ensaio, etc.
             $table->timestamps();

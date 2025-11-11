@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ministerio;
+use App\Models\Lideranca;
+use App\Models\Comissao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -14,13 +16,35 @@ class MinisterioController extends Controller
 
     public function show(Ministerio $ministerio)
     {
+        $user = auth()->user();
+
+        $podeGerenciar = false;
+
+        if ($user) {
+            $podeGerenciar =
+                // se for líder
+                Lideranca::where('ministerio_id', $ministerio->id)
+                    ->where(function ($query) use ($user) {
+                        $query->where('lider_id', $user->id)
+                            ->orWhere('vice_id', $user->id);
+                    })
+                    ->where('ativo', true)
+                    ->exists()
+                ||
+                // ou se for membro da comissão
+                Comissao::where('ministerio_id', $ministerio->id)
+                    ->where('membro_id', $user->id)
+                    ->exists();
+        }
+
         $ministerio->load([
-            'comissoes', 
+            'comissoes',
             'integrantes.membros'
         ]);
 
-        return view('ministerios.show', compact('ministerio'));
+        return view('ministerios.show', compact('ministerio', 'podeGerenciar'));
     }
+
 
 
     public function index(Request $request)

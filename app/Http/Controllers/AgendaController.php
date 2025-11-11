@@ -27,6 +27,36 @@ class AgendaController extends Controller
         return view('ministerios.agendas', compact('ministerio', 'agendas', 'editando'));
     }
 
+    public function calendario()
+    {
+        $agendas = Agenda::with(['ministerio', 'criador'])->get();
+
+        $eventos = $agendas->map(function ($agenda) {
+            return [
+                'title' => "{$agenda->ministerio->nome}: {$agenda->titulo}",
+                'start' => $agenda->data_inicio->format('Y-m-d\TH:i:s'),
+                'end' => optional($agenda->data_fim)->format('Y-m-d\TH:i:s'),
+                'color' => match ($agenda->status) {
+                    'planejado' => '#3b82f6',
+                    'realizado' => '#16a34a',
+                    'cancelado' => '#dc2626',
+                    default => '#6b7280'
+                },
+                'extendedProps' => [
+                    'descricao' => $agenda->descricao,
+                    'local' => $agenda->local,
+                    'tipo_evento' => $agenda->tipo_evento,
+                    'criado_por' => optional($agenda->criador)->name,
+                ],
+            ];
+        })->values();
+
+        // 👇 Não use toJson() aqui — deixe o Blade fazer o encode corretamente
+        return view('ministerios.calendario', [
+            'eventosJson' => $eventos,
+        ]);
+    }
+
     /**
      * Armazena um novo evento.
      */
@@ -43,6 +73,7 @@ class AgendaController extends Controller
         ]);
 
         $validated['ministerio_id'] = $ministerio->id;
+        $validated['criado_por'] = auth()->id();
 
         Agenda::create($validated);
 

@@ -17,7 +17,7 @@ class Agenda extends Model
         'local',
         'data_inicio',
         'data_fim',
-        'responsavel_id',
+        'criado_por',
         'status',
         'tipo_evento',
     ];
@@ -33,8 +33,8 @@ class Agenda extends Model
         return $this->belongsTo(Ministerio::class);
     }
 
-    public function responsavel()
+    public function criador()
     {
-        return $this->belongsTo(User::class, 'responsavel_id');
+        return $this->belongsTo(User::class, 'criado_por');
     }
 }

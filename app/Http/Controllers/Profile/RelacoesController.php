@@ -53,7 +53,7 @@ class RelacoesController extends Controller
         $q = $request->get('q', '');
         if (strlen($q) < 2) return response()->json([]);
 
-        $users = \App\Models\User::query()
+        $users = User::query()
             ->where(function ($query) use ($q) {
                 $query->where('name', 'like', "%{$q}%")
                     ->orWhere('email', 'like', "%{$q}%");
@@ -146,7 +146,7 @@ class RelacoesController extends Controller
     private function tipoEspelho(string $tipo, int $membroId): string
     {
         // Tenta buscar o sexo do usuário relacionado
-        $relacionado = \App\Models\User::find($membroId);
+        $relacionado = User::find($membroId);
         $sexo = $relacionado?->sexo ?? null; // pode ser 'M', 'F' ou null
 
         return match ($tipo) {

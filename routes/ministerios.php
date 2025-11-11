@@ -23,6 +23,8 @@ Route::middleware(['auth'])->prefix('ministerios')->name('ministerios.')->group(
     // Lista e criação de ministérios
     Route::get('/', [MinisterioController::class, 'index'])->name('index');
     Route::post('/', [MinisterioController::class, 'store'])->name('store');
+    
+    Route::get('/calendario', [AgendaController::class, 'calendario'])->name('calendario');
 
     // Rotas para um ministério específico (show, update, destroy)
     Route::prefix('/{ministerio}')

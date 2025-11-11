@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -59,7 +60,7 @@ class Ministerio extends Model
     public function integrantes()
     {
         return $this->belongsToMany(
-            \App\Models\User::class,
+            User::class,
             'integrante_ministerio', // nome da tabela pivô
             'ministerio_id',         // FK para este model
             'membro_id'              // FK para o model User

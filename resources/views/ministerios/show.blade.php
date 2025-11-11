@@ -20,53 +20,50 @@
                             {{ $ministerio->data_fundacao?->format('d/m/Y') ?? '—' }}
                         </dd>
                     </div>
+
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Status</dt>
                         <dd class="mt-1 text-sm text-gray-900">
                             {{ $ministerio->ativo ? 'Ativo' : 'Inativo' }}
                         </dd>
                     </div>
-                </dl>
-            </section>
-
-            {{-- 👥 Liderança --}}
-            <section class="border-t pt-4">
-                <h3 class="text-lg font-semibold mb-3 text-gray-800">Liderança</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Líder</dt>
                         <dd class="mt-1 text-sm text-gray-900">
                             {{ $ministerio->lider?->name ?? '—' }}
                         </dd>
                     </div>
+
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Vice-Líder</dt>
                         <dd class="mt-1 text-sm text-gray-900">
                             {{ $ministerio->vice?->name ?? '—' }}
                         </dd>
                     </div>
-                </div>
-            </section>
 
-            {{-- 🧑‍🤝‍🧑 Comissões --}}
-            <section class="border-t pt-4">
-                <h3 class="text-lg font-semibold mb-3 text-gray-800">Comissões</h3>
 
-                @if($ministerio->comissoes->count())
-                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                        @foreach ($ministerio->comissoes as $comissao)
-                            <li>
-                                <span class="font-semibold">{{ $comissao->membro?->name ?? '—' }}</span>
-                                — <span class="text-gray-600">{{ ucfirst($comissao->funcao) }}</span>
-                                @if (!$comissao->ativo)
-                                    <span class="text-red-500 text-xs">(Inativo)</span>
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p class="text-gray-500 text-sm">Nenhuma comissão cadastrada.</p>
-                @endif
+                    <div class="sm:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Comissões</dt>
+                        @if($ministerio->comissoes->count())
+                        
+                            
+                            <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                @foreach ($ministerio->comissoes as $comissao)
+                                    <li>
+                                        <span class="font-semibold">{{ $comissao->membro?->name ?? '—' }}</span>
+                                        — <span class="text-gray-600">{{ ucfirst($comissao->funcao) }}</span>
+                                        @if (!$comissao->ativo)
+                                            <span class="text-red-500 text-xs">(Inativo)</span>
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p class="text-gray-500 text-sm">Nenhuma comissão cadastrada.</p>
+                        @endif
+                    </div>
+                </dl>
             </section>
 
             {{-- ✋ Inscrição no Ministério (visível apenas para membros) --}}
@@ -107,20 +104,23 @@
 
 
 
-
-
-            @if(Auth::check() && Auth::user()->isIgreja())
-                {{-- 🔗 Atalhos --}}
-                <section class="border-t pt-4">
-                    <h3 class="text-lg font-semibold mb-2">Atalhos</h3>
-                    <div class="space-y-1">
+            {{-- 🔗 Atalhos --}}
+            <section class="border-t pt-4">
+                <h3 class="text-lg font-semibold mb-2">Atalhos</h3>
+                <div class="space-y-1">
+                    @if($podeGerenciar)
                         <x-dropdown-link :href="route('ministerios.agendas.index', $ministerio->id)">📅 Agenda</x-dropdown-link>
+                    @endif
+                    @if(Auth::user()->isIgreja())
                         <x-dropdown-link :href="route('ministerios.comissoes.index', $ministerio->id)">🧩 Comissões</x-dropdown-link>
                         <x-dropdown-link :href="route('ministerios.integrantes.index', $ministerio->id)">👥 Integrantes</x-dropdown-link>
                         <x-dropdown-link :href="route('ministerios.liderancas.index', $ministerio->id)">🏅 Lideranças</x-dropdown-link>
-                    </div>
-                </section>
-            @endif
+                    @endif
+                </div>
+            </section>
+
+
+
         </div>
     </div>
 </x-layouts.app>

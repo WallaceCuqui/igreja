@@ -72,10 +72,16 @@
 
                             <!-- resources/views/components/menu-ministerios.blade.php -->
                             <x-slot name="content">
-                                <x-dropdown-link :href="route('ministerios.index')">Todos os Ministérios</x-dropdown-link>
+                                @if ($isIgreja)
+                                    <x-dropdown-link :href="route('ministerios.index')">Gerenciar Ministérios</x-dropdown-link>
+
+                                    <div class="border-t my-2"></div>
+                                @endif
+
+                                <x-dropdown-link :href="route('ministerios.calendario')">Calendario</x-dropdown-link>
 
                                 @if(isset($ministerios) && $ministerios->count())
-                                    <div class="border-t my-2"></div>
+                                    
 
                                     @foreach($ministerios ?? [] as $m)
                                         <x-dropdown-link :href="route('ministerios.show', $m->id)">{{ $m->nome }}</x-dropdown-link>
