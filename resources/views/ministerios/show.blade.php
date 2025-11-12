@@ -108,7 +108,7 @@
             <section class="border-t pt-4">
                 <h3 class="text-lg font-semibold mb-2">Atalhos</h3>
                 <div class="space-y-1">
-                    @if($podeGerenciar)
+                    @if($podeGerenciar || Auth::user()->isIgreja())
                         <x-dropdown-link :href="route('ministerios.agendas.index', $ministerio->id)">📅 Agenda</x-dropdown-link>
                     @endif
                     @if(Auth::user()->isIgreja())

@@ -28,6 +28,7 @@ class LiderancaResource extends Resource
 
     protected static ?string $model = Lideranca::class;
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationGroup = 'Ministérios';
     protected static ?string $navigationLabel = 'Lideranças';
     protected static ?string $pluralLabel = 'Lideranças';
     protected static ?string $slug = 'liderancas';

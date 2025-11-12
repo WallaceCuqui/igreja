@@ -17,6 +17,7 @@ class Notificacao extends Model
         'mensagem',
         'created_by',
         'target_user_id',
+        'ministerio_id',
         'starts_at',
         'ends_at',
     ];
@@ -26,6 +27,11 @@ class Notificacao extends Model
         'ends_at' => 'datetime',
     ];
 
+    public function ministerio()
+    {
+        return $this->belongsTo(Ministerio::class);
+    }
+    
     // quem criou (admin)
     public function targetUser()
     {

@@ -10,5 +10,7 @@ return [
         'ministerios' => 'Ministérios',
         'liderancas' => 'Lideranças',
         'comissoes' => 'Comissões',
+        'integrantes' => 'Integrantes',
+        'agendas' => 'Agendas',
     ],
 ];

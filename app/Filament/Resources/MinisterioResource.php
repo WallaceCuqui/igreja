@@ -30,6 +30,7 @@ class MinisterioResource extends Resource
 
     protected static ?string $model = Ministerio::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
+    protected static ?string $navigationGroup = 'Ministérios';
     protected static ?string $navigationLabel = 'Ministérios';
     protected static ?string $pluralLabel = 'Ministérios';
     protected static ?string $slug = 'ministerios';
@@ -61,7 +62,7 @@ class MinisterioResource extends Resource
         return $table->columns([
             TextColumn::make('igreja.name')->label('Igreja')->searchable()->sortable(),
             TextColumn::make('nome')->searchable()->sortable(),
-            TextColumn::make('descricao')->limit(50),
+            TextColumn::make('descricao')->searchable()->limit(50),
             BadgeColumn::make('politica_ingresso')
                 ->colors([
                     'success' => 'aberto',

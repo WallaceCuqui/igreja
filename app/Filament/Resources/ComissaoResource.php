@@ -29,6 +29,7 @@ class ComissaoResource extends Resource
 
     protected static ?string $model = Comissao::class;
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+    protected static ?string $navigationGroup = 'Ministérios';
     protected static ?string $navigationLabel = 'Comissões';
     protected static ?string $pluralLabel = 'Comissões';
     protected static ?string $slug = 'comissoes';
