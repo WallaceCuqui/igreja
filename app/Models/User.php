@@ -94,6 +94,13 @@ class User extends Authenticatable implements MustVerifyEmail
             ->withTimestamps();
     }
 
+    public function comissoes()
+    {
+        return $this->hasMany(Comissao::class, 'membro_id');
+    }
+
+
+
     public function notificacoesVisiveis()
 {
     // IDs dos ministérios do usuário (array simples)

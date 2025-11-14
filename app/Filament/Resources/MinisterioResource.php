@@ -40,6 +40,26 @@ class MinisterioResource extends Resource
         return $form->schema([
             TextInput::make('nome')->required()->maxLength(255),
             Textarea::make('descricao')->rows(3),
+            Select::make('genero')
+                ->options([
+                    'todos' => 'Todos',
+                    'masculino' => 'Masculino',
+                    'feminino' => 'Feminino',
+                ])
+                ->default('todos')
+                ->required()
+                ->label('Gênero aceito'),
+
+            TextInput::make('idade_min')
+                ->numeric()
+                ->minValue(0)
+                ->label('Idade mínima'),
+
+            TextInput::make('idade_max')
+                ->numeric()
+                ->minValue(0)
+                ->label('Idade máxima'),
+
             Select::make('politica_ingresso')
                 ->options([
                     'aberto' => 'Aberto',
@@ -63,6 +83,9 @@ class MinisterioResource extends Resource
             TextColumn::make('igreja.name')->label('Igreja')->searchable()->sortable(),
             TextColumn::make('nome')->searchable()->sortable(),
             TextColumn::make('descricao')->searchable()->limit(50),
+            TextColumn::make('genero')->label('Gênero'),
+            TextColumn::make('idade_min')->label('Idade Min'),
+            TextColumn::make('idade_max')->label('Idade Max'),
             BadgeColumn::make('politica_ingresso')
                 ->colors([
                     'success' => 'aberto',

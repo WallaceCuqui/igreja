@@ -115,10 +115,14 @@ class MinisterioController extends Controller
             $validated = $request->validate([
                 'nome' => 'required|string|max:255',
                 'descricao' => 'nullable|string',
+                'genero' => 'required|in:todos,masculino,feminino',
+                'idade_min' => 'nullable|integer|min:0',
+                'idade_max' => 'nullable|integer|min:0|gte:idade_min',
                 'data_fundacao' => 'nullable|date',
                 'ativo' => 'boolean',
                 'politica_ingresso' => 'required|in:aberto,restrito',
             ]);
+
 
 
             $validated['igreja_id'] = $user->id;
@@ -162,6 +166,9 @@ class MinisterioController extends Controller
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
+            'genero' => 'required|in:todos,masculino,feminino',
+            'idade_min' => 'nullable|integer|min:0',
+            'idade_max' => 'nullable|integer|min:0|gte:idade_min',
             'data_fundacao' => 'nullable|date',
             'ativo' => 'nullable|boolean',
             'politica_ingresso' => 'required|in:aberto,restrito',

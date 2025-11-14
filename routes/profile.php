@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\IgrejaController;
 use App\Http\Controllers\MembroController;
+use App\Http\Controllers\MembroPerfilController;
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -15,6 +17,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/igrejas/buscar', [IgrejaController::class, 'buscar'])->name('igrejas.buscar');
 
+    
+    Route::get('/membros/{membro}/perfil', [MembroPerfilController::class, 'show'])
+        ->name('membros.perfil');
     
 
 

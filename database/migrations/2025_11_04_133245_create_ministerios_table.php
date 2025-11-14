@@ -15,6 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->text('descricao')->nullable();
+            $table->unsignedTinyInteger('idade_min')->nullable();
+            $table->unsignedTinyInteger('idade_max')->nullable();
+            $table->enum('genero', ['todos', 'masculino', 'feminino'])
+                  ->default('todos')
+                  ->after('politica_ingresso');
             $table->enum('politica_ingresso', ['aberto', 'restrito'])
                 ->default('restrito');
             $table->date('data_fundacao')->nullable();

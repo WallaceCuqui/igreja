@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class RelacionamentoFamiliar extends Model
 {
+    protected $table = 'relacionamentos_familiares';
+    
     protected $fillable = ['user_id', 'parente_id', 'tipo'];
 
     public function user()

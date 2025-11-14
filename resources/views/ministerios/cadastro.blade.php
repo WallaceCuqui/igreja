@@ -32,6 +32,51 @@
                         class="w-full border-gray-300 rounded-md shadow-sm mt-1">{{ old('descricao', $editando->descricao ?? '') }}</textarea>
                 </div>
 
+                {{-- Gênero do Ministério --}}
+                <div class="mb-4">
+                    <x-input-label for="genero" value="Público / Gênero do Ministério" />
+                    <select name="genero" id="genero" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm">
+
+                        @php
+                            $generoValue = old('genero', $editando->genero ?? 'todos');
+                        @endphp
+
+                        <option value="todos" {{ $generoValue === 'todos' ? 'selected' : '' }}>
+                            Todos (misto)
+                        </option>
+                        <option value="masculino" {{ $generoValue === 'masculino' ? 'selected' : '' }}>
+                            Masculino
+                        </option>
+                        <option value="feminino" {{ $generoValue === 'feminino' ? 'selected' : '' }}>
+                            Feminino
+                        </option>
+                    </select>
+                    <x-input-error :messages="$errors->get('genero')" />
+                </div>
+
+                {{-- Faixa etária --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+
+                    {{-- Idade mínima --}}
+                    <div>
+                        <x-input-label for="idade_min" value="Idade Mínima (opcional)" />
+                        <x-text-input id="idade_min" name="idade_min" type="number" min="0"
+                            value="{{ old('idade_min', $editando->idade_min ?? '') }}"
+                            class="block w-full mt-1" />
+                        <x-input-error :messages="$errors->get('idade_min')" />
+                    </div>
+
+                    {{-- Idade máxima --}}
+                    <div>
+                        <x-input-label for="idade_max" value="Idade Máxima (opcional)" />
+                        <x-text-input id="idade_max" name="idade_max" type="number" min="0"
+                            value="{{ old('idade_max', $editando->idade_max ?? '') }}"
+                            class="block w-full mt-1" />
+                        <x-input-error :messages="$errors->get('idade_max')" />
+                    </div>
+                </div>
+
+
                 <div class="mb-4">
                     <x-input-label for="politica_ingresso" value="Tipo de Ingresso" />
                     <select name="politica_ingresso" id="politica_ingresso" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm">

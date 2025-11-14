@@ -16,8 +16,10 @@ class Ministerio extends Model
         'descricao',
         'data_fundacao',
         'ativo',
-        'lider_id',
-        'vice_id',
+        'politica_ingresso',
+        'idade_min',
+        'idade_max',
+        'genero',
     ];
 
     protected $casts = [

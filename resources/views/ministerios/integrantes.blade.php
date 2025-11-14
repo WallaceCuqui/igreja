@@ -48,7 +48,12 @@
                         <tbody>
                             @forelse($integrantes as $m)
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-2">{{ $m->name }}</td>
+                                    <td class="px-4 py-2">
+                                        <a href="{{ route('membros.perfil', $m->id) }}"
+                                            class="text-indigo-600 hover:text-indigo-800 underline font-medium">
+                                            {{ $m->name }}
+                                        </a>
+                                    </td>
                                     <td class="px-4 py-2 capitalize">
                                         {{ $m->pivot->status ?? '—' }}
                                     </td>

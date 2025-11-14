@@ -32,4 +32,26 @@ class DetalhesUsuario extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function getDocumentoMascaradoAttribute()
+    {
+        if (!$this->documento) {
+            return null;
+        }
+
+        $doc = preg_replace('/\D/', '', $this->documento); // remove não numéricos
+
+        // CPF (11 dígitos)
+        if (strlen($doc) === 11) {
+            return substr($doc, 0, 3) . '.***.***-' . substr($doc, -2);
+        }
+
+        // CNPJ (14 dígitos)
+        if (strlen($doc) === 14) {
+            return substr($doc, 0, 2) . '.***.***/****-' . substr($doc, -2);
+        }
+
+        return 'Documento indisponível';
+    }
+
 }
